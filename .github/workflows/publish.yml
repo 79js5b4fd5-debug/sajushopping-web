@@ -1,0 +1,107 @@
+# 홈페이지(site/) + 상품 목록(구글 시트 또는 products.csv → products.json) → GitHub Pages
+#
+# 저장소 설정:
+#   Settings › Pages › Source: "GitHub Actions"
+#   Settings › Secrets and variables › Actions
+#     Variables: SHEET_CSV_URL  (구글 시트 '웹에 게시' CSV 주소. 없으면 products.csv 사용)
+#                COUPANG_SUB_ID (선택: 파트너스 채널 아이디)
+#     Secrets:   COUPANG_ACCESS_KEY, COUPANG_SECRET_KEY (선택: 파트너스 API 승인 후)
+#
+# 배포 규칙:
+#   - 저장소에 올리거나(push) 직접 실행하면: 홈페이지와 상품 목록을 배포
+#   - 매시 자동 실행: 상품 목록이 바뀌었을 때만 배포
+#   - 상품 목록에 문제가 있으면: 지금 배포된 목록을 그대로 두고 홈페이지만 갱신.
+#     직접 실행·push 때는 실패로 표시하고, 매시 자동 실행 때는 경고만 남김 (메일 폭탄 방지)
+#     파트너스 링크를 아직 덜 채운 것뿐이면 언제나 경고만 남김
+name: 홈페이지·상품 목록 배포
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 * * * *" # 매시 17분: 시트 수정 내용 반영
+  workflow_dispatch:
+
+permissions:
+  contents: write # links.json(API 변환 링크 캐시) 저장
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      - id: build
+        name: 시트 읽고 검증해서 products.json 만들기
+        continue-on-error: true
+        env:
+          SHEET_CSV_URL: ${{ vars.SHEET_CSV_URL }}
+          COUPANG_SUB_ID: ${{ vars.COUPANG_SUB_ID }}
+          COUPANG_ACCESS_KEY: ${{ secrets.COUPANG_ACCESS_KEY }}
+          COUPANG_SECRET_KEY: ${{ secrets.COUPANG_SECRET_KEY }}
+        run: |
+          python3 build_catalog.py \
+            --csv products.csv \
+            --previous "${{ steps.pages.outputs.base_url }}/products.json" \
+            --link-cache links.json \
+            --out dist/products.json
+
+      - name: 홈페이지 파일 넣기
+        run: |
+          mkdir -p dist
+          cp -R site/. dist/
+          if grep -rqE "\{(문의 이메일|운영자 이름)\}" site; then
+            echo "::warning::site/privacy.html·support.html의 {운영자 이름}, {문의 이메일}을 채워 주세요."
+          fi
+
+      - name: API 변환 링크 캐시 저장
+        run: |
+          if [ -f links.json ] && [ -n "$(git status --porcelain -- links.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add links.json
+            git commit -m "파트너스 링크 캐시 갱신"
+            git push
+          fi
+
+      - id: decide
+        name: 배포할지 정하기
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ] || [ "${{ steps.build.outputs.changed }}" = "true" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.decide.outputs.deploy == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - if: steps.decide.outputs.deploy == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: 상품 목록 문제 알림
+        if: steps.build.outcome == 'failure'
+        run: |
+          if [ "${{ steps.build.outputs.problem }}" = "links-only" ]; then
+            echo "::warning::파트너스 링크가 있는 상품이 아직 부족해서 상품 목록은 배포하지 않았어요 (홈페이지는 배포됨). 시트에 링크를 채워 주세요."
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "::warning::상품 목록에 문제가 있어 지금 배포된 목록을 유지했어요. 실행 결과의 Summary를 확인하세요."
+          else
+            echo "::error::상품 목록에 문제가 있어 지금 배포된 목록을 유지했어요. 실행 결과의 Summary를 확인하세요."
+            exit 1
+          fi

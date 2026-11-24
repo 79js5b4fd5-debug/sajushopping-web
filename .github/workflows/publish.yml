@@ -3,7 +3,7 @@
 # 저장소 설정:
 #   Settings › Pages › Source: "GitHub Actions"
 #   Settings › Secrets and variables › Actions
-#     Variables: SHEET_CSV_URL  (구글 시트 '웹에 게시' CSV 주소. 없으면 products.csv 사용)
+#     Variables: SHEET_CSV_URL  (구글 시트 CSV 주소: export?format=csv 또는 '웹에 게시' CSV. 없으면 products.csv 사용)
 #                COUPANG_SUB_ID (선택: 파트너스 채널 아이디)
 #     Secrets:   COUPANG_ACCESS_KEY, COUPANG_SECRET_KEY (선택: 파트너스 API 승인 후)
 #

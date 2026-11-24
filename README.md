@@ -67,7 +67,8 @@ site/ (홈페이지) ───────────────────�
 2. 이 폴더를 공개 저장소(예: `sajushopping-web`)로 올립니다.
 3. Settings › Pages › Build and deployment › Source를 **GitHub Actions**로 바꾸고, Actions › 홈페이지·상품 목록 배포 › Run workflow로 한 번 실행합니다. 이때부터 홈페이지가 열립니다 (파트너스 링크가 아직 없으면 상품 목록은 실패로 표시되고 홈페이지만 배포됨).
 4. 구글 시트를 만듭니다: 새 시트 › 파일 › 가져오기 › `products.csv` 업로드.
-5. 시트 › 파일 › 공유 › **웹에 게시** › 해당 시트 · **쉼표로 구분된 값(.csv)** › 게시 → 나온 주소를 복사합니다.
+5. 시트 › 공유 › 일반 액세스를 **링크가 있는 모든 사용자 · 뷰어**로 바꿉니다. CSV 주소는 `https://docs.google.com/spreadsheets/d/{시트 ID}/export?format=csv`입니다 (첫 번째 탭). 파일 › 공유 › **웹에 게시** › CSV로 나온 주소를 써도 됩니다.
+   링크를 아는 사람은 시트 전체(메모 칸 포함)를 볼 수 있으니, 메모에는 남에게 보여도 되는 것만 적으세요.
 6. 저장소 Settings › Secrets and variables › Actions › Variables에 `SHEET_CSV_URL`로 그 주소를 넣습니다.
 7. 시트에 파트너스 링크를 채우면 다음 정각 17분쯤 상품 목록이 배포됩니다.
 8. 배포 주소 `https://{계정}.github.io/{저장소}/products.json`을 앱의 `project.yml` › `PRODUCT_CATALOG_URL`에 넣습니다.

@@ -50,6 +50,13 @@ ELEMENTS = {
 PRICE_TIERS = ["1만원 이하", "1만원대", "2~3만원대", "5만원 이상"]
 SEASONS = {"봄", "여름", "가을", "겨울"}
 ALL_SEASON_WORDS = {"", "all", "전체", "사계절", "상시"}
+# 성별: 비우면 누구나. 한쪽 성별 전용 상품만 적는다.
+GENDERS = {"여성": "female", "여": "female", "female": "female", "f": "female",
+           "남성": "male", "남": "male", "male": "male", "m": "male"}
+ANY_GENDER_WORDS = {"", "공용", "누구나", "전체", "남녀", "남녀공용", "all", "any"}
+# 연령대: 비우면 모든 나이. 10 = 10대 이하, 60 = 60대 이상.
+AGE_BANDS = {10, 20, 30, 40, 50, 60}
+ALL_AGE_WORDS = {"", "전체", "모든 나이", "누구나", "all"}
 PARTNER_HOSTS = {"link.coupang.com", "coupa.ng"}
 ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{1,63}$")
 
@@ -64,6 +71,8 @@ HEADERS = {
     "가격대": "priceRange", "pricerange": "priceRange",
     "색상": "colors", "colors": "colors",
     "계절": "season", "season": "season",
+    "성별": "gender", "gender": "gender",
+    "연령대": "ages", "ages": "ages", "나이대": "ages",
     "로켓배송": "rocket", "rocket": "rocket",
     "검색어": "keyword", "keyword": "keyword",
     "파트너스 링크": "partnerUrl", "partnerurl": "partnerUrl",
@@ -184,6 +193,25 @@ def parse_rows(text: str, report: Report) -> list[dict]:
             if bad:
                 problems.append(f"계절은 봄·여름·가을·겨울 (비우면 사계절): {', '.join(bad)}")
 
+        gender_raw = raw.get("gender", "").strip()
+        gender = None
+        if gender_raw.lower() not in ANY_GENDER_WORDS:
+            gender = GENDERS.get(gender_raw.lower())
+            if not gender:
+                problems.append(f"성별은 여성·남성 중 하나 (누구나면 비워 두기): {gender_raw}")
+
+        ages_raw = raw.get("ages", "").strip()
+        ages: list[int] = []
+        if ages_raw.lower() not in ALL_AGE_WORDS:
+            for part in split_list(ages_raw):
+                digits = re.sub(r"[^0-9]", "", part)
+                band = int(digits) if digits else -1
+                if band in AGE_BANDS:
+                    ages.append(band)
+                else:
+                    problems.append(f"연령대는 10대·20대·30대·40대·50대·60대 (모든 나이면 비워 두기): {part}")
+            ages = sorted(set(ages))
+
         rocket = parse_bool(raw.get("rocket", ""), default=False)
         if rocket is None:
             problems.append(f"'로켓배송' 값을 알 수 없어요: {raw.get('rocket')}")
@@ -219,6 +247,10 @@ def parse_rows(text: str, report: Report) -> list[dict]:
             product["imageUrl"] = image
         if raw.get("symbol"):
             product["symbol"] = raw["symbol"]
+        if gender:
+            product["gender"] = gender
+        if ages:
+            product["ages"] = ages
         product["_keyword"] = raw.get("keyword") or raw["title"]
         product["_line"] = line
         products.append(product)

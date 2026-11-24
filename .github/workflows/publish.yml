@@ -91,6 +91,11 @@ jobs:
         with:
           path: dist
 
+      # 올린 직후 바로 찾으면 "No artifacts named github-pages"로 가끔 실패해서 잠깐 기다린다.
+      - if: steps.decide.outputs.deploy == 'true'
+        name: 올린 파일이 확인될 때까지 잠깐 기다리기
+        run: sleep 15
+
       - if: steps.decide.outputs.deploy == 'true'
         id: deployment
         uses: actions/deploy-pages@v4

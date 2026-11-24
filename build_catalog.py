@@ -73,6 +73,7 @@ HEADERS = {
     "계절": "season", "season": "season",
     "성별": "gender", "gender": "gender",
     "연령대": "ages", "ages": "ages", "나이대": "ages",
+    "인기": "popularity", "popularity": "popularity",
     "로켓배송": "rocket", "rocket": "rocket",
     "검색어": "keyword", "keyword": "keyword",
     "파트너스 링크": "partnerUrl", "partnerurl": "partnerUrl",
@@ -212,6 +213,14 @@ def parse_rows(text: str, report: Report) -> list[dict]:
                     problems.append(f"연령대는 10대·20대·30대·40대·50대·60대 (모든 나이면 비워 두기): {part}")
             ages = sorted(set(ages))
 
+        popularity = None
+        pop_raw = raw.get("popularity", "").strip().replace("★", "").strip()
+        if pop_raw:
+            if pop_raw.isdigit() and 1 <= int(pop_raw) <= 5:
+                popularity = int(pop_raw)
+            else:
+                problems.append(f"'인기'는 1~5 숫자여야 해요 (3이 보통): {raw.get('popularity')}")
+
         rocket = parse_bool(raw.get("rocket", ""), default=False)
         if rocket is None:
             problems.append(f"'로켓배송' 값을 알 수 없어요: {raw.get('rocket')}")
@@ -251,6 +260,8 @@ def parse_rows(text: str, report: Report) -> list[dict]:
             product["gender"] = gender
         if ages:
             product["ages"] = ages
+        if popularity is not None and popularity != 3:
+            product["popularity"] = popularity
         product["_keyword"] = raw.get("keyword") or raw["title"]
         product["_line"] = line
         products.append(product)

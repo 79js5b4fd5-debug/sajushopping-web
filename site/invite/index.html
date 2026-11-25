@@ -301,7 +301,8 @@
             <a class="btn btn-ink" href="https://apps.apple.com/kr/app/id6838945111">App Store에서 받기</a>
             <a class="btn btn-line" id="open-app" href="sajushopping://invite">앱이 있으면 앱에서 열기</a>
           </div>
-          <p class="fine" id="cta-android" hidden>사주쇼핑 앱은 아직 아이폰만 있어요. 안드로이드에서는 이 페이지를 홈 화면에 추가해 두면 앱처럼 바로 열 수 있어요.</p>
+          <p class="fine" id="cta-android-soon">안드로이드 앱은 준비 중이에요.</p>
+          <p class="fine" id="cta-android" hidden>안드로이드 앱은 준비 중이에요. 그동안 이 페이지를 홈 화면에 추가해 두면 앱처럼 바로 열 수 있어요.</p>
         </div>
 
         <p class="browser-note" id="kakao-note" hidden>카카오톡 안에서 열었어요. 여기서 기억한 정보는 카카오톡 안에만 남아요. 다음에도 바로 보려면 오른쪽 위 메뉴에서 "다른 브라우저로 열기"를 누른 뒤 한 번 더 입력해 두세요.</p>
@@ -368,7 +369,7 @@
       var friendLack = E.fromName(params.get("lack"));
       var appParams = new URLSearchParams();
       if (from) appParams.set("from", from);
-      if (friendLack !== null) appParams.set("lack", E.korean(friendLack));
+      if (friendLack !== null) appParams.set("lack", E.key(friendLack));
       $("open-app").href = "sajushopping://invite" + (appParams.toString() ? "?" + appParams.toString() : "");
 
       if (friendLack !== null) {
@@ -389,6 +390,7 @@
       if (isAndroid) {
         text("cta-title", "내일의 기운도 미리 볼까요?");
         $("cta-ios").hidden = true;
+        $("cta-android-soon").hidden = true;
         $("cta-android").hidden = false;
       }
 
@@ -741,7 +743,7 @@
         var url = new URL(window.location.href);
         url.search = "";
         url.hash = "";
-        url.searchParams.set("lack", E.korean(shareLack));
+        url.searchParams.set("lack", E.key(shareLack));  // 한글을 넣으면 공유 문구에 %EC%88%98처럼 보인다
         var message = "나는 " + E.label(shareLack) + " 기운이 부족한 사람! 너는 뭐가 부족해?";
         if (navigator.share) {
           navigator.share({ title: "사주쇼핑", text: message, url: url.toString() }).catch(function () { /* 취소 */ });

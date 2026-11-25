@@ -89,6 +89,8 @@
       };
       var ALIASES = { "木": "목", "火": "화", "土": "토", "金": "금", "水": "수",
                       wood: "목", fire: "화", earth: "토", metal: "금", water: "수" };
+      // 링크에 넣는 영문 키 (한글은 공유 문구에 %EC%88%98처럼 보인다)
+      var URL_KEYS = { "목": "wood", "화": "fire", "토": "earth", "금": "metal", "수": "water" };
       var MAX = 6;
 
       function elementKey(raw) {
@@ -109,7 +111,7 @@
       // 앱으로 넘길 링크: 알려진 값만 다시 담는다.
       var appParams = new URLSearchParams();
       if (from) appParams.set("from", from);
-      if (lackKey) appParams.set("lack", lackKey);
+      if (lackKey) appParams.set("lack", URL_KEYS[lackKey]);
       var query = appParams.toString();
       document.getElementById("open-app").href = "sajushopping://invite" + (query ? "?" + query : "");
       document.getElementById("see-mine").href = "../invite/" + (query ? "?" + query : "");

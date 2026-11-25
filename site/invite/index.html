@@ -749,15 +749,45 @@
           navigator.share({ title: "사주쇼핑", text: message, url: url.toString() }).catch(function () { /* 취소 */ });
           return;
         }
+        // 공유 창이 없는 브라우저(카카오톡 안 브라우저 등): 복사해 두고, 주소는 화면에 찍지 않는다.
         var all = message + "\n" + url.toString();
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(all).then(function () {
-            text("share-status", "링크를 복사했어요. 친구에게 붙여 넣어 보내세요.");
-          }, function () { text("share-status", all); });
+        var copied = "링크를 복사했어요. 카톡 대화창에 붙여 넣어 보내 주세요.";
+        var failed = "이 브라우저에서는 바로 보낼 수 없어요. Safari나 Chrome에서 열어 다시 눌러 주세요.";
+        // 클릭 안에서 바로 복사해야 막히지 않는 브라우저가 많아 예전 방식을 먼저 쓴다.
+        if (copyWithSelection(all)) {
+          text("share-status", copied);
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(all).then(function () { text("share-status", copied); },
+                                                  function () { text("share-status", failed); });
         } else {
-          text("share-status", all);
+          text("share-status", failed);
         }
       });
+
+      /** 보이지 않는 입력 칸에 글을 넣고 선택해 복사한다. 성공하면 true. */
+      function copyWithSelection(s) {
+        var area = document.createElement("textarea");
+        area.value = s;
+        area.setAttribute("readonly", "");
+        area.style.position = "fixed";
+        area.style.top = "0";
+        area.style.left = "0";
+        area.style.opacity = "0";
+        area.style.fontSize = "16px";  // iOS가 확대하지 않게
+        document.body.appendChild(area);
+        var ok = false;
+        try {
+          area.focus();
+          area.select();
+          area.setSelectionRange(0, s.length);
+          ok = document.execCommand("copy");
+        } catch (e) {
+          ok = false;
+        }
+        document.body.removeChild(area);
+        $("share").focus();
+        return ok;
+      }
 
       // MARK: 시작: 기억한 정보가 있으면 바로 결과
 

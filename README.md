@@ -63,7 +63,7 @@ site/ (홈페이지) ───────────────────�
 ## 홈페이지 (site/)
 
 - 공개 전에 `privacy.html`과 `support.html`의 `{운영자 이름}`, `{문의 이메일}`을 채우세요.
-- 앱이 출시되면 `index.html`의 TestFlight 버튼을 앱스토어 링크로 바꾸세요. (`invite/`·`gift/`는 이미 App Store 링크)
+- 앱 받기 버튼(`index.html`, `invite/`)은 App Store 주소 `https://apps.apple.com/kr/app/id6838945111`로 연결됩니다.
 - `assets/share/*.png`는 카카오톡 공유 피드에 붙는 기운별 이미지(800×400)입니다. 앱 디자인을 바꾸면 시뮬레이터에서 개발용 실행 인자 `-exportShareImages YES`로 다시 만들어 Documents/share/에서 복사하세요.
 - 저장소에 올리면(push) 바로 배포됩니다. 상품 목록에 문제가 있어도 홈페이지는 배포되고, 상품 목록은 이전 것을 유지합니다.
 - **초대 링크는 사용자 지정 도메인이 필요합니다.** 앱은 `https://{도메인}/invite`를 인식하는데, `{계정}.github.io/{저장소}/invite`처럼 저장소 이름이 붙은 경로는 인식하지 못합니다. 유니버설 링크용 `/.well-known/apple-app-site-association`도 도메인 맨 앞에 있어야 합니다. 도메인을 사서 Settings › Pages › Custom domain에 연결하고, 앱의 `SHARE_LINK_DOMAIN`을 그 도메인으로 바꾸세요.

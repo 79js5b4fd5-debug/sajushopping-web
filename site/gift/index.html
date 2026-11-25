@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>선물 추천 — 사주쇼핑</title>
+  <meta name="description" content="사주에 부족한 기운을 채워 줄 선물을 골랐어요.">
+  <meta property="og:title" content="사주쇼핑 선물 추천">
+  <meta property="og:description" content="사주에 부족한 기운을 채워 줄 선물을 골랐어요.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#161512" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/png" href="../assets/favicon.png">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .gift { padding: 40px 0 24px; }
+    .gift .wrap { max-width: 560px; }
+    .gift .seal { width: 88px; height: 88px; font-size: 52px; margin-bottom: 22px; }
+    .gift .from { font-size: 14px; font-weight: 700; color: var(--seal); margin: 0 0 6px; }
+    .gift h1 { font-size: clamp(26px, 6.4vw, 32px); line-height: 1.3; letter-spacing: -0.01em; margin: 0 0 8px; }
+    .gift .hint { color: var(--ink-2); margin: 0 0 28px; }
+    .gift .disclosure { font-size: 13px; line-height: 1.55; color: var(--ink-3); margin: 0 0 4px; padding-top: 14px; border-top: 1.5px solid var(--ink); }
+    .picks { list-style: none; margin: 0; padding: 0; }
+    .picks li { border-bottom: 1px solid var(--rule); padding: 18px 0; }
+    .picks h2 { font-size: 18px; line-height: 1.4; margin: 0 0 4px; }
+    .picks .reason { color: var(--ink-2); font-size: 15px; line-height: 1.6; margin: 0 0 10px; }
+    .picks .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .picks .meta { color: var(--ink-3); font-size: 14px; }
+    .picks .rocket { color: var(--water); font-weight: 700; }
+    .picks .go {
+      flex: none; display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px;
+      border: 1px solid var(--ink); border-radius: 8px; font-size: 14px; font-weight: 700; text-decoration: none;
+    }
+    .picks .empty { color: var(--ink-2); padding: 18px 0; }
+    .cta { margin-top: 40px; background: var(--paper-raised); padding: 24px 22px; }
+    .cta h2 { font-size: 20px; line-height: 1.4; margin: 0 0 6px; }
+    .cta p { color: var(--ink-2); margin: 0 0 18px; font-size: 15px; }
+    .cta .actions { flex-direction: column; }
+    .cta .btn { width: 100%; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <a class="brand" href="../"><img src="../assets/favicon.png" alt="">사주쇼핑</a>
+      <nav><a href="../support.html">문의</a></nav>
+    </div>
+  </header>
+
+  <main class="gift">
+    <div class="wrap">
+      <div class="seal" id="seal" aria-hidden="true">氣</div>
+      <p class="from" id="from" hidden></p>
+      <h1 id="title">부족한 기운을 채워 줄 선물</h1>
+      <p class="hint" id="hint">사주에 부족한 기운을 채워 줄 물건을 골랐어요.</p>
+
+      <p class="disclosure">이 페이지는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+      <ul class="picks" id="picks">
+        <li class="empty">선물을 불러오고 있어요…</li>
+      </ul>
+
+      <div class="cta">
+        <h2>나에게 부족한 기운도 알아볼까요?</h2>
+        <p>사주쇼핑 앱에 생년월일만 넣으면 내 사주 여덟 글자와 부족한 기운, 그 기운을 채워 줄 물건을 바로 알려 드려요.</p>
+        <div class="actions">
+          <a class="btn btn-ink" id="get-app" href="https://apps.apple.com/kr/app/id6838945111">App Store에서 받기</a>
+          <a class="btn btn-line" id="open-app" href="sajushopping://invite">앱이 있으면 앱에서 열기</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="links"><a href="../">홈</a><a href="../privacy.html">개인정보처리방침</a><a href="../support.html">문의</a></div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var ELEMENTS = {
+        "목": { label: "목(木)", hanja: "木", color: "var(--wood)", hint: "초록색 · 식물 · 원목 소재 · 신맛" },
+        "화": { label: "화(火)", hanja: "火", color: "var(--fire)", hint: "빨강 · 주황 · 조명 · 캔들 · 쓴맛" },
+        "토": { label: "토(土)", hanja: "土", color: "var(--earth)", hint: "베이지 · 브라운 · 도자기 · 단맛" },
+        "금": { label: "금(金)", hanja: "金", color: "var(--metal)", hint: "흰색 · 실버 · 메탈 소재 · 매운맛" },
+        "수": { label: "수(水)", hanja: "水", color: "var(--water)", hint: "검정 · 네이비 · 유리 · 물 · 짠맛" }
+      };
+      var ALIASES = { "木": "목", "火": "화", "土": "토", "金": "금", "水": "수",
+                      wood: "목", fire: "화", earth: "토", metal: "금", water: "수" };
+      var MAX = 6;
+
+      function elementKey(raw) {
+        raw = (raw || "").trim();
+        if (ELEMENTS[raw]) return raw;
+        return ALIASES[raw.toLowerCase()] || ALIASES[raw] || null;
+      }
+
+      var params = new URLSearchParams(window.location.search);
+      var to = (params.get("to") || "").trim().slice(0, 20);
+      var from = (params.get("from") || "").trim().slice(0, 20);
+      var key = elementKey(params.get("el"));
+      var lackKey = elementKey(params.get("lack"));
+      var ids = (params.get("ids") || "").split(",").map(function (s) { return s.trim(); })
+        .filter(function (s) { return /^[a-z0-9-]{1,60}$/.test(s); }).slice(0, MAX);
+      var element = key ? ELEMENTS[key] : null;
+
+      // 앱으로 넘길 링크: 알려진 값만 다시 담는다.
+      var appParams = new URLSearchParams();
+      if (from) appParams.set("from", from);
+      if (lackKey) appParams.set("lack", lackKey);
+      var query = appParams.toString();
+      document.getElementById("open-app").href = "sajushopping://invite" + (query ? "?" + query : "");
+
+      if (from) {
+        var fromEl = document.getElementById("from");
+        fromEl.textContent = from + "님이 사주쇼핑에서 찾은 선물";
+        fromEl.hidden = false;
+      }
+      if (element) {
+        var seal = document.getElementById("seal");
+        seal.textContent = element.hanja;
+        seal.style.background = element.color;
+        document.getElementById("title").textContent =
+          (to ? to + "에게 " : "") + "필요한 건 " + element.label + " 기운";
+        document.getElementById("hint").textContent =
+          element.label + " 기운을 채워 주는 것: " + element.hint;
+        document.title = (to ? to + "에게 필요한 " : "") + element.label + " 기운 선물 — 사주쇼핑";
+      }
+
+      var list = document.getElementById("picks");
+
+      function show(products) {
+        list.textContent = "";
+        if (!products.length) {
+          var li = document.createElement("li");
+          li.className = "empty";
+          li.textContent = "선물 목록을 찾지 못했어요. 사주쇼핑 앱에서 다시 확인해 주세요.";
+          list.appendChild(li);
+          return;
+        }
+        products.forEach(function (p) {
+          var li = document.createElement("li");
+          var h = document.createElement("h2");
+          h.textContent = p.title;
+          var reason = document.createElement("p");
+          reason.className = "reason";
+          reason.textContent = p.reason || "";
+          var row = document.createElement("div");
+          row.className = "row";
+          var meta = document.createElement("span");
+          meta.className = "meta";
+          meta.textContent = p.priceRange || "";
+          if (p.rocket) {
+            var r = document.createElement("span");
+            r.className = "rocket";
+            r.textContent = " · 로켓배송";
+            meta.appendChild(r);
+          }
+          row.appendChild(meta);
+          if (/^https:\/\//.test(p.partnerUrl || "")) {
+            var a = document.createElement("a");
+            a.className = "go";
+            a.href = p.partnerUrl;
+            a.rel = "sponsored noopener";
+            a.textContent = "쿠팡에서 보기";
+            row.appendChild(a);
+          }
+          li.appendChild(h);
+          li.appendChild(reason);
+          li.appendChild(row);
+          list.appendChild(li);
+        });
+      }
+
+      // 링크에 담긴 상품이 목록에서 빠졌으면, 같은 기운 상품에서 카테고리가 겹치지 않게 채운다.
+      function fill(picked, all) {
+        if (!key || picked.length >= Math.min(MAX, Math.max(ids.length, 3))) return picked;
+        var used = {};
+        var cats = {};
+        picked.forEach(function (p) { used[p.id] = true; cats[p.category] = true; });
+        all.forEach(function (p) {
+          if (picked.length >= MAX || used[p.id] || p.element !== key || cats[p.category]) return;
+          picked.push(p);
+          used[p.id] = true;
+          cats[p.category] = true;
+        });
+        return picked;
+      }
+
+      fetch("../products.json", { cache: "no-cache" })
+        .then(function (res) { if (!res.ok) throw new Error(res.status); return res.json(); })
+        .then(function (doc) {
+          var all = (doc && doc.products) || [];
+          var byID = {};
+          all.forEach(function (p) { byID[p.id] = p; });
+          var picked = ids.map(function (id) { return byID[id]; }).filter(Boolean);
+          show(fill(picked, all));
+        })
+        .catch(function () { show([]); });
+    })();
+  </script>
+</body>
+</html>

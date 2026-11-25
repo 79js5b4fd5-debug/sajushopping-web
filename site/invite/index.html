@@ -132,6 +132,8 @@
     /* 공유·앱 */
     .share-row { display: flex; flex-direction: column; gap: 10px; }
     .share-row .btn { width: 100%; }
+    .btn-kakao { background: #FEE500; color: rgba(0, 0, 0, 0.85); border-color: #FEE500; gap: 8px; }
+    .btn-kakao[hidden] { display: none; }
     .share-status { color: var(--ink-2); font-size: 14px; margin: 4px 0 0; min-height: 1.5em; }
     .cta { margin-top: 44px; background: var(--paper-raised); padding: 24px 20px; }
     .cta h2 { margin: 0 0 6px; }
@@ -289,6 +291,10 @@
             <p>링크를 받은 친구도 설치 없이 바로 볼 수 있어요.</p>
           </div>
           <div class="share-row">
+            <button class="btn btn-kakao" type="button" id="share-kakao" hidden>
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 3C6.48 3 2 6.54 2 10.9c0 2.82 1.87 5.3 4.69 6.7-.15.53-.97 3.4-1 3.62 0 0-.02.17.09.24.11.06.24.01.24.01.32-.04 3.7-2.42 4.28-2.83.55.08 1.12.12 1.7.12 5.52 0 10-3.54 10-7.86S17.52 3 12 3z"/></svg>
+              카카오톡으로 보내기
+            </button>
             <button class="btn btn-line" type="button" id="share">친구에게 보내기</button>
           </div>
           <p class="share-status" id="share-status" role="status"></p>
@@ -317,6 +323,9 @@
     </div>
   </footer>
 
+  <!-- 카카오톡 카드 공유. 누를 때만 쓰고, 불러오지 못해도 나머지는 그대로 동작한다. -->
+  <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"
+          integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous" async></script>
   <script src="../assets/saju.js"></script>
   <script>
     (function () {
@@ -738,19 +747,60 @@
       // MARK: 공유 (친구에게 이 페이지를 보낸다. 이름·생일은 넣지 않는다)
 
       var shareLack = null;
-      $("share").addEventListener("click", function () {
-        if (shareLack === null) return;
+
+      /** 친구에게 보낼 초대 주소. 이름·생일은 넣지 않는다. */
+      function shareURL() {
         var url = new URL(window.location.href);
         url.search = "";
         url.hash = "";
         url.searchParams.set("lack", E.key(shareLack));  // 한글을 넣으면 공유 문구에 %EC%88%98처럼 보인다
+        return url.toString();
+      }
+
+      // 카카오톡 카드 공유 (앱과 같은 모양: 기운별 이미지 + "너는 뭐가 부족해?" 버튼, 주소는 보이지 않는다).
+      // JavaScript 키는 카카오 개발자 콘솔 › 앱 키. 웹에 공개되는 키이고, 등록한 사이트 도메인에서만 쓸 수 있다.
+      var KAKAO_JS_KEY = "b9dedaed19f280a61f5d50c46ee6117c";
+      if (KAKAO_JS_KEY) $("share-kakao").hidden = false;
+
+      $("share-kakao").addEventListener("click", function () {
+        if (shareLack === null) return;
+        var K = window.Kakao;
+        if (!K) {
+          text("share-status", "카카오톡 공유를 불러오지 못했어요. 아래 \"친구에게 보내기\"를 눌러 주세요.");
+          return;
+        }
+        try {
+          if (!K.isInitialized()) K.init(KAKAO_JS_KEY);  // Kakao.Share는 init 뒤에 생긴다
+          var url = shareURL();
+          var link = { mobileWebUrl: url, webUrl: url };
+          K.Share.sendDefault({
+            objectType: "feed",
+            content: {
+              title: "나는 " + E.label(shareLack) + " 기운이 부족한 사람",
+              description: "너는 뭐가 부족해? 생년월일만 넣으면 설치 없이 바로 알려 줘요.",
+              imageUrl: new URL("../assets/share/" + E.key(shareLack) + ".png", window.location.href).toString(),
+              imageWidth: 800,
+              imageHeight: 400,
+              link: link
+            },
+            buttons: [{ title: "너는 뭐가 부족해?", link: link }]
+          });
+          text("share-status", "");
+        } catch (e) {
+          text("share-status", "카카오톡 공유를 열지 못했어요. 아래 \"친구에게 보내기\"를 눌러 주세요.");
+        }
+      });
+
+      $("share").addEventListener("click", function () {
+        if (shareLack === null) return;
+        var url = shareURL();
         var message = "나는 " + E.label(shareLack) + " 기운이 부족한 사람! 너는 뭐가 부족해?";
         if (navigator.share) {
-          navigator.share({ title: "사주쇼핑", text: message, url: url.toString() }).catch(function () { /* 취소 */ });
+          navigator.share({ title: "사주쇼핑", text: message, url: url }).catch(function () { /* 취소 */ });
           return;
         }
         // 공유 창이 없는 브라우저(카카오톡 안 브라우저 등): 복사해 두고, 주소는 화면에 찍지 않는다.
-        var all = message + "\n" + url.toString();
+        var all = message + "\n" + url;
         var copied = "링크를 복사했어요. 카톡 대화창에 붙여 넣어 보내 주세요.";
         var failed = "이 브라우저에서는 바로 보낼 수 없어요. Safari나 Chrome에서 열어 다시 눌러 주세요.";
         // 클릭 안에서 바로 복사해야 막히지 않는 브라우저가 많아 예전 방식을 먼저 쓴다.

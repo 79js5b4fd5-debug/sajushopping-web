@@ -3,16 +3,150 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>사주쇼핑 초대</title>
-  <meta name="description" content="사주쇼핑에서 친구가 초대했어요. 서로에게 부족한 기운을 채워 줄 선물을 골라 보세요.">
-  <meta property="og:title" content="사주쇼핑 초대">
-  <meta property="og:description" content="서로에게 부족한 기운을 채워 줄 선물을 골라 보세요.">
+  <title>내 기운 보기 — 사주쇼핑</title>
+  <meta name="description" content="생년월일만 넣으면 사주 여덟 글자로 나에게 부족한 기운과 오늘의 기운, 그 기운을 채워 줄 물건을 바로 알려 드려요. 설치하지 않아도 돼요.">
+  <meta property="og:title" content="나에게 부족한 기운은? — 사주쇼핑">
+  <meta property="og:description" content="생년월일만 넣으면 부족한 기운과 오늘의 기운을 바로 알려 드려요.">
   <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#161512" media="(prefers-color-scheme: dark)">
   <link rel="icon" type="image/png" href="../assets/favicon.png">
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .me { padding: 36px 0 24px; }
+    .me section { padding: 0; }
+    .me .wrap { max-width: 560px; }
+    .me h1 { font-size: clamp(28px, 7vw, 34px); line-height: 1.3; letter-spacing: -0.01em; margin: 10px 0 10px; }
+    .me .lead { color: var(--ink-2); margin: 0 0 28px; font-size: 16px; }
+    .me h2 { font-size: 20px; line-height: 1.4; margin: 0; }
+    .block { margin-top: 44px; }
+    .block-head { border-top: 1.5px solid var(--ink); padding-top: 12px; margin-bottom: 16px; }
+    .block-head p { color: var(--ink-2); font-size: 14px; margin: 2px 0 0; }
+    .muted { color: var(--ink-2); }
+    .small { font-size: 14px; }
+
+    /* 초대 띠 */
+    .invite-note {
+      display: grid; grid-template-columns: 44px 1fr; gap: 0 14px; align-items: center;
+      background: var(--paper-raised); padding: 14px 16px; margin-bottom: 28px;
+    }
+    .invite-note .seal { width: 44px; height: 44px; font-size: 26px; margin: 0; border-radius: 6px; grid-row: span 2; }
+    .invite-note strong { font-size: 15px; line-height: 1.45; }
+    .invite-note a { font-size: 14px; color: var(--ink-2); }
+
+    /* 입력 */
+    .field { border: 0; margin: 0 0 22px; padding: 0; min-width: 0; }
+    .field > label, .field > legend { display: block; font-weight: 700; font-size: 15px; margin: 0 0 8px; padding: 0; }
+    .field .help { color: var(--ink-3); font-size: 13px; line-height: 1.55; margin: 8px 0 0; }
+    .input, .select {
+      width: 100%; min-height: 52px; padding: 0 14px; border: 1px solid var(--ink-3); border-radius: 10px;
+      background: var(--paper); color: var(--ink); font: inherit; font-size: 17px;
+      -webkit-appearance: none; appearance: none;
+    }
+    .input:focus, .select:focus { outline: 2px solid var(--ink); outline-offset: 1px; border-color: var(--ink); }
+    .select {
+      background-image: linear-gradient(45deg, transparent 50%, var(--ink-2) 50%), linear-gradient(135deg, var(--ink-2) 50%, transparent 50%);
+      background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%;
+      background-size: 6px 6px; background-repeat: no-repeat; padding-right: 36px;
+    }
+    .input[type="time"] { display: block; }
+    .seg { display: flex; border: 1px solid var(--ink-3); border-radius: 10px; overflow: hidden; }
+    .seg label { flex: 1; position: relative; cursor: pointer; }
+    .seg label + label { border-left: 1px solid var(--ink-3); }
+    .seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+    .seg span {
+      display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 8px;
+      font-size: 15px; font-weight: 600; color: var(--ink-2); text-align: center; line-height: 1.3;
+    }
+    .seg input:checked + span { background: var(--ink); color: var(--paper); }
+    .seg input:focus-visible + span { outline: 2px solid var(--seal); outline-offset: -3px; }
+    .time-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
+    .check { display: inline-flex; align-items: center; gap: 8px; font-size: 15px; cursor: pointer; min-height: 44px; }
+    .check input { width: 20px; height: 20px; accent-color: var(--ink); margin: 0; }
+    .field > label.check { display: inline-flex; font-weight: 600; margin: 0; }
+    .form-error { color: var(--seal); font-weight: 600; font-size: 15px; margin: 0 0 14px; }
+    .submit { width: 100%; }
+    .fine { color: var(--ink-3); font-size: 13px; line-height: 1.6; margin: 14px 0 0; }
+
+    /* 결과 맨 위 */
+    .hero-result { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; }
+    .hero-result .eyebrow { font-size: 15px; color: var(--ink-2); font-weight: 600; }
+    .hero-result h1 { margin: 6px 0 4px; }
+    .hero-result .keywords { color: var(--ink-2); margin: 0; font-size: 15px; }
+    .hero-result .seal { width: 76px; height: 76px; font-size: 44px; margin: 4px 0 0; }
+    .birth-line { color: var(--ink-3); font-size: 14px; margin: 14px 0 0; }
+    .birth-line button {
+      font: inherit; color: var(--ink-2); background: none; border: 0; padding: 0; margin-left: 8px;
+      text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px; cursor: pointer;
+    }
+
+    /* 오늘 */
+    .today { background: var(--paper-raised); padding: 20px 18px; margin-top: 28px; }
+    .today .date { color: var(--ink-2); font-size: 14px; margin: 0 0 6px; }
+    .today h2 { font-size: 22px; margin: 0 0 8px; }
+    .today .headline { font-weight: 600; margin: 0 0 6px; }
+    .today .detail { color: var(--ink-2); font-size: 15px; margin: 0; }
+
+    /* 상품 */
+    .disclosure-top { font-size: 13px; line-height: 1.55; color: var(--ink-3); margin: 0; }
+    .picks { list-style: none; margin: 0; padding: 0; }
+    .picks li { border-bottom: 1px solid var(--rule); padding: 16px 0; }
+    .picks h3 { font-size: 17px; line-height: 1.4; margin: 0 0 4px; }
+    .picks .reason { color: var(--ink-2); font-size: 15px; line-height: 1.6; margin: 0 0 10px; }
+    .picks .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .picks .meta { color: var(--ink-3); font-size: 14px; }
+    .picks .rocket { color: var(--water); font-weight: 700; }
+    .picks .go {
+      flex: none; display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px;
+      border: 1px solid var(--ink); border-radius: 8px; font-size: 14px; font-weight: 700; text-decoration: none;
+    }
+    .picks .empty { color: var(--ink-2); }
+
+    /* 원국 */
+    .pillars { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+    .pillar { text-align: center; padding: 10px 4px 12px; border-left: 1px solid var(--rule); }
+    .pillar:first-child { border-left: 0; }
+    .pillar .pos { font-size: 13px; color: var(--ink-3); margin: 0 0 6px; }
+    .pillar .char { font-family: var(--serif); font-weight: 700; font-size: 40px; line-height: 1.15; display: block; }
+    .pillar .sub { display: block; font-size: 12px; color: var(--ink-2); margin: 2px 0 8px; }
+    .pillar.unknown .char { color: var(--ink-3); }
+    .pillar.me .pos { color: var(--seal); font-weight: 700; }
+    .note-line { color: var(--ink-2); font-size: 14px; margin: 10px 0 0; }
+
+    /* 오행 분포 */
+    .counts { list-style: none; margin: 0; padding: 0; }
+    .counts li { display: grid; grid-template-columns: 112px 1fr 28px; gap: 12px; align-items: center; padding: 7px 0; }
+    .counts .name { font-weight: 700; font-size: 15px; }
+    .counts .bar { height: 12px; background: var(--rule); position: relative; }
+    .counts .bar i { position: absolute; inset: 0 auto 0 0; display: block; }
+    .counts .num { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+    .counts .tag { font-size: 12px; font-weight: 700; color: var(--seal); margin-left: 6px; }
+
+    /* 해설 */
+    .lack-desc { margin: 0 0 14px; }
+    .fill { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: baseline; background: var(--paper-raised); padding: 14px; }
+    .fill b { color: var(--seal); font-size: 13px; white-space: nowrap; }
+    .fill span { font-weight: 600; font-size: 15px; }
+
+    /* 공유·앱 */
+    .share-row { display: flex; flex-direction: column; gap: 10px; }
+    .share-row .btn { width: 100%; }
+    .share-status { color: var(--ink-2); font-size: 14px; margin: 4px 0 0; min-height: 1.5em; }
+    .cta { margin-top: 44px; background: var(--paper-raised); padding: 24px 20px; }
+    .cta h2 { margin: 0 0 6px; }
+    .cta p { color: var(--ink-2); margin: 0 0 16px; font-size: 15px; }
+    .cta .actions { flex-direction: column; }
+    .cta .btn { width: 100%; }
+    .cta .fine { margin-top: 12px; }
+    .text-btn {
+      font: inherit; font-size: 13px; color: var(--ink-3); background: none; border: 0; padding: 0; cursor: pointer;
+      text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px;
+    }
+    .browser-note { background: var(--paper-raised); padding: 12px 14px; font-size: 14px; color: var(--ink-2); margin: 20px 0 0; }
+
+    [hidden] { display: none !important; }
+  </style>
 </head>
 <body>
   <header class="topbar">
@@ -22,65 +156,618 @@
     </div>
   </header>
 
-  <main class="invite">
-    <div class="invite-card">
-      <div class="seal" id="orb" aria-hidden="true">氣</div>
-      <h1 id="title">사주쇼핑에 초대받았어요</h1>
-      <p id="message">사주쇼핑에서 내 사주에 부족한 기운을 알아보고, 서로에게 어울리는 선물을 골라 보세요.</p>
-      <div class="actions">
-        <a class="btn btn-ink" id="open-app" href="sajushopping://invite">앱에서 열기</a>
-        <a class="btn btn-line" href="https://testflight.apple.com/join/Yh3gtzsA">TestFlight로 설치</a>
+  <main class="me">
+    <div class="wrap">
+      <div class="invite-note" id="invite-note" hidden>
+        <div class="seal" id="invite-seal" aria-hidden="true">氣</div>
+        <strong id="invite-text"></strong>
+        <a id="invite-gift" href="../gift/">선물 고르기 →</a>
       </div>
-      <p class="fine">앱이 설치돼 있으면 "앱에서 열기"를 누르세요. 친구 정보가 채워진 채로 선물하기가 열려요. 아직 없으면 "TestFlight로 설치"를 눌러 베타를 받을 수 있어요 (App Store의 TestFlight 앱이 필요해요).</p>
+
+      <!-- 입력 -->
+      <section id="form-view">
+        <p class="eyebrow">설치 없이 바로</p>
+        <h1>나에게 부족한 기운은?</h1>
+        <p class="lead">생년월일만 넣으면 사주 여덟 글자로 부족한 기운과 오늘의 기운, 그 기운을 채워 줄 물건을 알려 드려요.</p>
+
+        <form id="form" novalidate>
+          <div class="field">
+            <label for="birth">생년월일</label>
+            <input class="input" id="birth" name="birth" inputmode="numeric" autocomplete="bday" placeholder="예: 19940718" maxlength="10">
+          </div>
+
+          <fieldset class="field">
+            <legend>양력·음력</legend>
+            <div class="seg">
+              <label><input type="radio" name="calendar" value="solar" checked><span>양력</span></label>
+              <label><input type="radio" name="calendar" value="lunar"><span>음력</span></label>
+              <label><input type="radio" name="calendar" value="lunarLeap"><span>음력 윤달</span></label>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <label for="time">태어난 시간</label>
+            <div class="time-row">
+              <input class="input" id="time" name="time" type="time">
+              <label class="check"><input type="checkbox" id="time-unknown"> 몰라요</label>
+            </div>
+            <p class="help">모르면 시주 없이 여섯 글자로 봐요.</p>
+          </div>
+
+          <fieldset class="field">
+            <legend>성별</legend>
+            <div class="seg">
+              <label><input type="radio" name="gender" value="female"><span>여성</span></label>
+              <label><input type="radio" name="gender" value="male"><span>남성</span></label>
+            </div>
+            <p class="help">추천 물건을 고를 때만 써요.</p>
+          </fieldset>
+
+          <div class="field">
+            <label for="city">태어난 곳</label>
+            <select class="select" id="city" name="city"></select>
+            <p class="help">태어난 곳의 경도로 시각을 몇 분 보정해요. 목록에 없으면 가장 가까운 곳을 고르세요. 가까운 곳이면 결과는 거의 같아요.</p>
+          </div>
+
+          <div class="field">
+            <label class="check"><input type="checkbox" id="remember" checked> 이 기기에 기억하기</label>
+            <p class="help" style="margin-top:2px">다음에 열면 입력 없이 바로 오늘의 기운이 나와요. 이 브라우저에만 저장돼요.</p>
+          </div>
+
+          <p class="form-error" id="form-error" role="alert" hidden></p>
+          <button class="btn btn-ink submit" type="submit">결과 보기</button>
+          <p class="fine">입력한 정보는 이 기기의 브라우저 안에서만 계산하고, 어디에도 보내지 않아요.</p>
+        </form>
+      </section>
+
+      <!-- 결과 -->
+      <section id="result-view" hidden>
+        <div class="hero-result">
+          <div>
+            <p class="eyebrow">나에게 부족한 건</p>
+            <h1 id="r-title"></h1>
+            <p class="keywords" id="r-keywords"></p>
+          </div>
+          <div class="seal" id="r-seal" aria-hidden="true"></div>
+        </div>
+        <p class="birth-line"><span id="r-birth"></span><button type="button" id="edit">다시 입력</button></p>
+
+        <div class="today">
+          <p class="date" id="t-date"></p>
+          <h2 id="t-title"></h2>
+          <p class="headline" id="t-headline"></p>
+          <p class="detail" id="t-detail"></p>
+        </div>
+
+        <div class="block">
+          <div class="block-head">
+            <h2 id="t-picks-title">오늘의 보완템</h2>
+            <p id="t-picks-hint"></p>
+          </div>
+          <p class="disclosure-top">이 페이지는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+          <ul class="picks" id="today-picks"><li class="empty">불러오고 있어요…</li></ul>
+        </div>
+
+        <div class="block">
+          <div class="block-head">
+            <h2>사주 원국</h2>
+            <p id="r-origin"></p>
+          </div>
+          <div class="pillars" id="r-pillars"></div>
+          <p class="note-line" id="r-correction"></p>
+        </div>
+
+        <div class="block">
+          <div class="block-head">
+            <h2>오행 분포</h2>
+            <p id="r-count-note"></p>
+          </div>
+          <ul class="counts" id="r-counts"></ul>
+          <p class="note-line" id="r-dominant"></p>
+        </div>
+
+        <div class="block">
+          <div class="block-head">
+            <h2 id="r-lack-title">나에게 부족한 기운</h2>
+          </div>
+          <p class="lack-desc" id="r-lack-desc"></p>
+          <div class="fill"><b>채우는 법</b><span id="r-fill"></span></div>
+          <p class="note-line" id="r-others" hidden></p>
+        </div>
+
+        <div class="block">
+          <div class="block-head">
+            <h2>평생 보완템</h2>
+            <p id="life-hint"></p>
+          </div>
+          <ul class="picks" id="life-picks"><li class="empty">불러오고 있어요…</li></ul>
+        </div>
+
+        <div class="block">
+          <div class="block-head">
+            <h2>친구는 뭐가 부족할까?</h2>
+            <p>링크를 받은 친구도 설치 없이 바로 볼 수 있어요.</p>
+          </div>
+          <div class="share-row">
+            <button class="btn btn-line" type="button" id="share">친구에게 보내기</button>
+          </div>
+          <p class="share-status" id="share-status" role="status"></p>
+        </div>
+
+        <div class="cta">
+          <h2 id="cta-title">매일 저녁, 내일의 기운을 알려 드려요</h2>
+          <p id="cta-text"></p>
+          <div class="actions" id="cta-ios">
+            <a class="btn btn-ink" href="https://apps.apple.com/kr/app/id6838945111">App Store에서 받기</a>
+            <a class="btn btn-line" id="open-app" href="sajushopping://invite">앱이 있으면 앱에서 열기</a>
+          </div>
+          <p class="fine" id="cta-android" hidden>사주쇼핑 앱은 아직 아이폰만 있어요. 안드로이드에서는 이 페이지를 홈 화면에 추가해 두면 앱처럼 바로 열 수 있어요.</p>
+        </div>
+
+        <p class="browser-note" id="kakao-note" hidden>카카오톡 안에서 열었어요. 여기서 기억한 정보는 카카오톡 안에만 남아요. 다음에도 바로 보려면 오른쪽 위 메뉴에서 "다른 브라우저로 열기"를 누른 뒤 한 번 더 입력해 두세요.</p>
+        <p class="fine" style="margin-top:16px"><button type="button" id="forget" class="text-btn">이 기기에 기억한 정보 지우기</button></p>
+      </section>
     </div>
   </main>
 
   <footer>
     <div class="wrap">
-      <p class="disclosure">사주쇼핑은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
-      <div class="links"><a href="../">홈</a><a href="../privacy.html">개인정보처리방침</a></div>
+      <div class="links"><a href="../">홈</a><a href="../privacy.html">개인정보처리방침</a><a href="../support.html">문의</a></div>
     </div>
   </footer>
 
+  <script src="../assets/saju.js"></script>
   <script>
     (function () {
-      var ELEMENTS = {
-        "목": { label: "목(木)", hanja: "木", color: "var(--wood)" },
-        "화": { label: "화(火)", hanja: "火", color: "var(--fire)" },
-        "토": { label: "토(土)", hanja: "土", color: "var(--earth)" },
-        "금": { label: "금(金)", hanja: "金", color: "var(--metal)" },
-        "수": { label: "수(水)", hanja: "水", color: "var(--water)" }
-      };
-      var ALIASES = { "木": "목", "火": "화", "土": "토", "金": "금", "水": "수",
-                      wood: "목", fire: "화", earth: "토", metal: "금", water: "수" };
+      "use strict";
+      var S = window.Saju;
+      var E = S.Element;
+      var STORE_KEY = "sajushopping.me.v1";
+      var COLORS = ["var(--wood)", "var(--fire)", "var(--earth)", "var(--metal)", "var(--water)"];
+      var WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+      // 앱의 BirthCity와 같은 목록 (도시 이름, 동경)
+      var REGIONS = [
+        ["특별시·광역시", [["서울", 126.978], ["부산", 129.075], ["대구", 128.601], ["인천", 126.705], ["광주", 126.852], ["대전", 127.385], ["울산", 129.311], ["세종", 127.289]]],
+        ["경기", [["수원", 127.029], ["고양", 126.832], ["의정부", 127.034], ["평택", 127.112]]],
+        ["강원", [["춘천", 127.730], ["원주", 127.920], ["강릉", 128.876]]],
+        ["충북", [["청주", 127.489], ["충주", 127.926]]],
+        ["충남", [["천안", 127.114], ["공주", 127.119], ["서산", 126.450]]],
+        ["전북", [["전주", 127.148], ["군산", 126.737], ["익산", 126.957]]],
+        ["전남", [["목포", 126.392], ["순천", 127.487], ["여수", 127.662]]],
+        ["경북", [["포항", 129.343], ["경주", 129.225], ["안동", 128.729], ["구미", 128.344]]],
+        ["경남", [["창원", 128.681], ["김해", 128.889], ["진주", 128.108]]],
+        ["제주", [["제주", 126.531], ["서귀포", 126.560]]],
+        ["그 밖", [["해외·기타 (서울 기준)", 126.978]]]
+      ];
+      var CITY = {};
+      REGIONS.forEach(function (r) { r[1].forEach(function (c) { CITY[c[0]] = c[1]; }); });
+
+      function $(id) { return document.getElementById(id); }
+      function text(id, value) { $(id).textContent = value; }
+
+      // MARK: 저장 (이 브라우저에만)
+
+      function load() {
+        try { var raw = window.localStorage.getItem(STORE_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+      }
+      function save(record) {
+        try { window.localStorage.setItem(STORE_KEY, JSON.stringify(record)); } catch (e) { /* 저장 못 해도 결과는 보여 준다 */ }
+      }
+      function forget() {
+        try { window.localStorage.removeItem(STORE_KEY); } catch (e) { /* 무시 */ }
+      }
+      function newID() {
+        if (window.crypto && crypto.randomUUID) return crypto.randomUUID().toUpperCase();
+        return "W" + Date.now().toString(16) + Math.random().toString(16).slice(2);
+      }
+
+      // MARK: 초대 링크 (?from=이름&lack=수)
 
       var params = new URLSearchParams(window.location.search);
       var from = (params.get("from") || "").trim().slice(0, 20);
-      var lackRaw = (params.get("lack") || "").trim();
-      var lackKey = ELEMENTS[lackRaw] ? lackRaw : ALIASES[lackRaw.toLowerCase()] || ALIASES[lackRaw];
-      var lack = lackKey ? ELEMENTS[lackKey] : null;
-
-      // 앱으로 넘길 링크: 알려진 값만 다시 담는다.
+      var friendLack = E.fromName(params.get("lack"));
       var appParams = new URLSearchParams();
       if (from) appParams.set("from", from);
-      if (lackKey) appParams.set("lack", lackKey);
-      var query = appParams.toString();
-      document.getElementById("open-app").href = "sajushopping://invite" + (query ? "?" + query : "");
+      if (friendLack !== null) appParams.set("lack", E.korean(friendLack));
+      $("open-app").href = "sajushopping://invite" + (appParams.toString() ? "?" + appParams.toString() : "");
 
-      var title = document.getElementById("title");
-      var message = document.getElementById("message");
-      var orb = document.getElementById("orb");
-
-      if (from) {
-        title.textContent = from + "님이 사주쇼핑에 초대했어요";
-        document.title = from + "님의 초대 — 사주쇼핑";
+      if (friendLack !== null) {
+        var who = from ? (/님$/.test(from) ? from : from + "님") : "친구";
+        $("invite-seal").textContent = E.hanja(friendLack);
+        $("invite-seal").style.background = COLORS[friendLack];
+        text("invite-text", who + "에게는 " + E.label(friendLack) + " 기운이 필요해요");
+        var gift = new URLSearchParams();
+        gift.set("to", who);
+        gift.set("el", E.korean(friendLack));
+        $("invite-gift").href = "../gift/?" + gift.toString();
+        $("invite-gift").textContent = who + "에게 어울리는 선물 보기 →";
+        $("invite-note").hidden = false;
       }
-      if (lack) {
-        orb.textContent = lack.hanja;
-        orb.style.background = lack.color;
-        message.textContent = (from ? from + "님에게는 " : "") + lack.label +
-          " 기운이 필요해요. 사주쇼핑 앱에서 내 사주도 보고, " +
-          (from ? from + "님에게" : "서로에게") + " 어울리는 선물도 골라 보세요.";
+
+      if (/KAKAOTALK/i.test(navigator.userAgent)) $("kakao-note").hidden = false;
+      var isAndroid = /Android/i.test(navigator.userAgent);
+      if (isAndroid) {
+        text("cta-title", "내일의 기운도 미리 볼까요?");
+        $("cta-ios").hidden = true;
+        $("cta-android").hidden = false;
+      }
+
+      // MARK: 입력
+
+      var citySelect = $("city");
+      REGIONS.forEach(function (r) {
+        var group = document.createElement("optgroup");
+        group.label = r[0];
+        r[1].forEach(function (c) {
+          var o = document.createElement("option");
+          o.value = c[0];
+          o.textContent = c[0];
+          group.appendChild(o);
+        });
+        citySelect.appendChild(group);
+      });
+      citySelect.value = "서울";
+
+      var timeInput = $("time"), timeUnknown = $("time-unknown");
+      timeUnknown.addEventListener("change", function () {
+        timeInput.disabled = timeUnknown.checked;
+        if (timeUnknown.checked) timeInput.value = "";
+      });
+
+      function radioValue(name) {
+        var el = document.querySelector('input[name="' + name + '"]:checked');
+        return el ? el.value : null;
+      }
+      function setRadio(name, value) {
+        var el = document.querySelector('input[name="' + name + '"][value="' + value + '"]');
+        if (el) el.checked = true;
+      }
+
+      function parseBirth(value) {
+        var parts = String(value || "").split(/[^0-9]+/).filter(Boolean);
+        var y, m, d;
+        if (parts.length === 3) {
+          y = +parts[0]; m = +parts[1]; d = +parts[2];
+        } else {
+          var digits = parts.join("");
+          if (digits.length !== 8) return null;
+          y = +digits.slice(0, 4); m = +digits.slice(4, 6); d = +digits.slice(6, 8);
+        }
+        if (!(y > 0 && m > 0 && d > 0)) return null;
+        return { year: y, month: m, day: d };
+      }
+
+      function showError(message) {
+        var el = $("form-error");
+        el.textContent = message;
+        el.hidden = !message;
+      }
+
+      function readForm() {
+        var birth = parseBirth($("birth").value);
+        if (!birth) return { error: "생년월일 8자리를 넣어 주세요. 예: 19940718" };
+        var calendar = radioValue("calendar") || "solar";
+        if (calendar !== "solar" && (birth.month > 12 || birth.day > 30)) return { error: "음력 날짜를 확인해 주세요." };
+        var hour = null, minute = null;
+        if (!timeUnknown.checked) {
+          var t = /^(\d{1,2}):(\d{2})/.exec(timeInput.value || "");
+          if (!t) return { error: "태어난 시간을 고르거나 '몰라요'에 체크해 주세요." };
+          hour = +t[1]; minute = +t[2];
+        }
+        var gender = radioValue("gender");
+        if (!gender) return { error: "성별을 골라 주세요." };
+        var city = CITY[citySelect.value] ? citySelect.value : "서울";
+        return {
+          birth: {
+            year: birth.year, month: birth.month, day: birth.day, calendar: calendar,
+            hour: hour, minute: minute, gender: gender, city: city
+          }
+        };
+      }
+
+      function fillForm(b) {
+        var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+        $("birth").value = b.year + pad(b.month) + pad(b.day);
+        setRadio("calendar", b.calendar || "solar");
+        setRadio("gender", b.gender);
+        if (b.hour == null) {
+          timeUnknown.checked = true;
+          timeInput.value = "";
+          timeInput.disabled = true;
+        } else {
+          timeUnknown.checked = false;
+          timeInput.disabled = false;
+          timeInput.value = pad(b.hour) + ":" + pad(b.minute || 0);
+        }
+        citySelect.value = CITY[b.city] ? b.city : "서울";
+      }
+
+      function chartFor(b) {
+        return S.chart({
+          year: b.year, month: b.month, day: b.day, calendar: b.calendar,
+          hour: b.hour, minute: b.minute, gender: b.gender, longitude: CITY[b.city] || S.SEOUL_LONGITUDE
+        });
+      }
+
+      var current = null; // { birth, id }
+
+      $("form").addEventListener("submit", function (event) {
+        event.preventDefault();
+        var r = readForm();
+        if (r.error) { showError(r.error); return; }
+        var chart;
+        try { chart = chartFor(r.birth); } catch (e) { showError(e.message || "날짜를 확인해 주세요."); return; }
+        showError("");
+        var previous = load();
+        var id = (previous && previous.id) || (current && current.id) || newID();
+        current = { birth: r.birth, id: id };
+        if ($("remember").checked) save({ v: 1, birth: r.birth, id: id });
+        else forget();
+        render(chart, current);
+        window.scrollTo(0, 0);
+      });
+
+      $("edit").addEventListener("click", function () {
+        if (current) fillForm(current.birth);
+        $("result-view").hidden = true;
+        $("form-view").hidden = false;
+        window.scrollTo(0, 0);
+      });
+
+      $("forget").addEventListener("click", function () {
+        forget();
+        current = null;
+        $("form").reset();
+        timeInput.disabled = false;
+        citySelect.value = "서울";
+        $("result-view").hidden = true;
+        $("form-view").hidden = false;
+        window.scrollTo(0, 0);
+      });
+
+      // MARK: 결과
+
+      function birthSummary(b) {
+        var s = b.year + "년 " + b.month + "월 " + b.day + "일 (" + S.BIRTH_CALENDARS[b.calendar] + ")";
+        if (b.hour != null) {
+          var h12 = b.hour % 12 === 0 ? 12 : b.hour % 12;
+          s += " " + (b.hour < 12 ? "오전" : "오후") + " " + h12 + ":" + (b.minute < 10 ? "0" : "") + b.minute;
+        } else {
+          s += " · 시간 모름";
+        }
+        return s + " · " + b.city;
+      }
+
+      function dateLabel(date, lunar) {
+        var jdnWeekday = new Date(Date.UTC(date.year, date.month - 1, date.day)).getUTCDay();
+        var s = date.month + "월 " + date.day + "일 " + WEEKDAYS[jdnWeekday] + "요일";
+        if (lunar) s += " · 음력 " + (lunar.isLeapMonth ? "윤" : "") + lunar.month + "월 " + lunar.day + "일";
+        return s;
+      }
+
+      function renderPillars(chart) {
+        var box = $("r-pillars");
+        box.textContent = "";
+        [["시주", chart.hour], ["일주", chart.day], ["월주", chart.month], ["년주", chart.year]].forEach(function (item, i) {
+          var cell = document.createElement("div");
+          cell.className = "pillar" + (item[1] ? "" : " unknown") + (i === 1 ? " me" : "");
+          var pos = document.createElement("p");
+          pos.className = "pos";
+          pos.textContent = item[0];
+          cell.appendChild(pos);
+          var p = item[1];
+          var rows = p ? [
+            [S.Stem.hanja(p.stem), S.Stem.korean(p.stem) + " · " + E.korean(S.Stem.element(p.stem)), S.Stem.element(p.stem)],
+            [S.Branch.hanja(p.branch), S.Branch.korean(p.branch) + " · " + E.korean(S.Branch.element(p.branch)), S.Branch.element(p.branch)]
+          ] : [["?", "모름", null], ["?", "모름", null]];
+          rows.forEach(function (row) {
+            var c = document.createElement("span");
+            c.className = "char";
+            c.textContent = row[0];
+            if (row[2] !== null) c.style.color = COLORS[row[2]];
+            var sub = document.createElement("span");
+            sub.className = "sub";
+            sub.textContent = row[1];
+            cell.appendChild(c);
+            cell.appendChild(sub);
+          });
+          box.appendChild(cell);
+        });
+      }
+
+      function renderCounts(chart) {
+        var list = $("r-counts");
+        list.textContent = "";
+        var a = chart.analysis;
+        var total = chart.isTimeKnown ? 8 : 6;
+        E.all.forEach(function (e) {
+          var li = document.createElement("li");
+          var name = document.createElement("span");
+          name.className = "name";
+          name.textContent = E.label(e);
+          name.style.color = COLORS[e];
+          var bar = document.createElement("span");
+          bar.className = "bar";
+          var fill = document.createElement("i");
+          fill.style.width = (chart.counts[e] / total * 100) + "%";
+          fill.style.background = COLORS[e];
+          bar.appendChild(fill);
+          var num = document.createElement("span");
+          num.className = "num";
+          num.textContent = chart.counts[e];
+          li.appendChild(name);
+          li.appendChild(bar);
+          li.appendChild(num);
+          if (e === a.primaryLacking) {
+            var tag = document.createElement("span");
+            tag.className = "tag";
+            tag.textContent = "가장 부족";
+            name.appendChild(tag);
+          }
+          list.appendChild(li);
+        });
+      }
+
+      var productsPromise = null;
+      function products() {
+        if (!productsPromise) {
+          productsPromise = fetch("../products.json", { cache: "no-cache" })
+            .then(function (res) { if (!res.ok) throw new Error(res.status); return res.json(); })
+            .then(function (doc) {
+              var seen = {};
+              return ((doc && doc.products) || []).filter(function (p) {
+                if (!S.isUsableProduct(p) || seen[p.id]) return false;
+                seen[p.id] = true;
+                return true;
+              });
+            });
+        }
+        return productsPromise;
+      }
+
+      function showProducts(listID, items) {
+        var list = $(listID);
+        list.textContent = "";
+        if (!items.length) {
+          var li = document.createElement("li");
+          li.className = "empty";
+          li.textContent = "상품을 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.";
+          list.appendChild(li);
+          return;
+        }
+        items.forEach(function (p) {
+          var li = document.createElement("li");
+          var h = document.createElement("h3");
+          h.textContent = p.title;
+          var reason = document.createElement("p");
+          reason.className = "reason";
+          reason.textContent = p.reason || "";
+          var row = document.createElement("div");
+          row.className = "row";
+          var meta = document.createElement("span");
+          meta.className = "meta";
+          meta.textContent = p.priceRange || "";
+          if (p.rocket) {
+            var r = document.createElement("span");
+            r.className = "rocket";
+            r.textContent = " · 로켓배송";
+            meta.appendChild(r);
+          }
+          var a = document.createElement("a");
+          a.className = "go";
+          a.href = p.partnerUrl;
+          a.rel = "sponsored noopener";
+          a.textContent = "쿠팡에서 보기";
+          row.appendChild(meta);
+          row.appendChild(a);
+          li.appendChild(h);
+          li.appendChild(reason);
+          li.appendChild(row);
+          list.appendChild(li);
+        });
+      }
+
+      function render(chart, person) {
+        var a = chart.analysis;
+        var lack = a.primaryLacking;
+        var content = S.content(lack);
+        var today = S.todayInKorea();
+        var fortune = S.daily(chart, today);
+        var tomorrow = S.daily(chart, S.addDays(today, 1));
+        var audience = S.makeAudience(chart.input.gender, chart.input.year, today);
+
+        text("r-title", E.label(lack) + " 기운");
+        $("r-title").style.color = COLORS[lack];
+        text("r-keywords", content.keywords);
+        $("r-seal").textContent = E.hanja(lack);
+        $("r-seal").style.background = COLORS[lack];
+        text("r-birth", birthSummary(person.birth));
+        document.title = E.label(lack) + " 기운이 부족한 사람 — 사주쇼핑";
+
+        text("t-date", "오늘 " + dateLabel(today, fortune.lunarDate));
+        text("t-title", "오늘은 " + E.label(fortune.focusElement) + " 기운이 필요한 날");
+        text("t-headline", fortune.headline);
+        text("t-detail", fortune.detail);
+        text("t-picks-title", "오늘의 보완템 · " + E.label(fortune.focusElement));
+        text("t-picks-hint", S.content(fortune.focusElement).fillHint);
+
+        text("r-origin", "일간 " + S.Stem.korean(chart.dayMaster) + E.korean(S.Stem.element(chart.dayMaster)) +
+          "(" + S.Stem.hanja(chart.dayMaster) + ") · " + chart.zodiacAnimal + "띠");
+        renderPillars(chart);
+        var ct = chart.correctedTime;
+        text("r-correction", ct
+          ? "진태양시 보정 " + chart.correctionMinutes + "분 → " + (ct.hour < 10 ? "0" : "") + ct.hour + ":" + (ct.minute < 10 ? "0" : "") + ct.minute + " 기준으로 계산했어요."
+          : "태어난 시간을 몰라 시주 없이 여섯 글자로 봤어요.");
+
+        text("r-count-note", (chart.isTimeKnown ? "여덟" : "여섯") + " 글자를 오행별로 세었어요 · 균형 " + a.balanceScore + "점");
+        renderCounts(chart);
+        text("r-dominant", "가장 강한 기운은 " + E.label(a.primaryDominant) + " 기운이에요.");
+
+        text("r-lack-desc", content.lackDescription);
+        text("r-fill", content.fillHint);
+        var others = a.lacking.slice(1);
+        $("r-others").hidden = !others.length;
+        text("r-others", "함께 부족한 기운: " + others.map(E.label).join(", "));
+        text("life-hint", E.label(lack) + " 기운을 늘 곁에 두는 물건");
+
+        var tomorrowLine = "내일(" + tomorrow.date.month + "월 " + tomorrow.date.day + "일)은 " + E.label(tomorrow.focusElement) + " 기운이 필요해요. ";
+        text("cta-text", tomorrowLine + (isAndroid
+          ? "내일 이 페이지를 다시 열면 내일의 기운과 보완템을 바로 보여 드려요."
+          : "사주쇼핑 앱을 받으면 매일 저녁 알림과 홈 화면 위젯으로 바로 볼 수 있고, 가족·친구 사주도 저장해 선물을 고를 수 있어요."));
+
+        $("today-picks").innerHTML = '<li class="empty">불러오고 있어요…</li>';
+        $("life-picks").innerHTML = '<li class="empty">불러오고 있어요…</li>';
+        products().then(function (all) {
+          var todays = S.dailyPicks(all, fortune.focusElement, today, person.id, audience, 3);
+          var life = S.lifetimePicks(all, lack, person.id, audience, 6);
+          showProducts("today-picks", todays);
+          showProducts("life-picks", life);
+        }).catch(function () {
+          showProducts("today-picks", []);
+          showProducts("life-picks", []);
+        });
+
+        shareLack = lack;
+        text("share-status", "");
+        $("form-view").hidden = true;
+        $("result-view").hidden = false;
+      }
+
+      // MARK: 공유 (친구에게 이 페이지를 보낸다. 이름·생일은 넣지 않는다)
+
+      var shareLack = null;
+      $("share").addEventListener("click", function () {
+        if (shareLack === null) return;
+        var url = new URL(window.location.href);
+        url.search = "";
+        url.hash = "";
+        url.searchParams.set("lack", E.korean(shareLack));
+        var message = "나는 " + E.label(shareLack) + " 기운이 부족한 사람! 너는 뭐가 부족해?";
+        if (navigator.share) {
+          navigator.share({ title: "사주쇼핑", text: message, url: url.toString() }).catch(function () { /* 취소 */ });
+          return;
+        }
+        var all = message + "\n" + url.toString();
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(all).then(function () {
+            text("share-status", "링크를 복사했어요. 친구에게 붙여 넣어 보내세요.");
+          }, function () { text("share-status", all); });
+        } else {
+          text("share-status", all);
+        }
+      });
+
+      // MARK: 시작: 기억한 정보가 있으면 바로 결과
+
+      var saved = load();
+      if (saved && saved.birth) {
+        try {
+          current = { birth: saved.birth, id: saved.id || newID() };
+          render(chartFor(saved.birth), current);
+        } catch (e) {
+          current = null;
+          forget();
+        }
       }
     })();
   </script>

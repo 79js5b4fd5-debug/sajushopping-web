@@ -63,9 +63,9 @@
 
       <div class="cta">
         <h2>나에게 부족한 기운도 알아볼까요?</h2>
-        <p>사주쇼핑 앱에 생년월일만 넣으면 내 사주 여덟 글자와 부족한 기운, 그 기운을 채워 줄 물건을 바로 알려 드려요.</p>
+        <p>생년월일만 넣으면 내 사주 여덟 글자와 부족한 기운, 그 기운을 채워 줄 물건을 바로 알려 드려요. 설치하지 않아도 돼요.</p>
         <div class="actions">
-          <a class="btn btn-ink" id="get-app" href="https://apps.apple.com/kr/app/id6838945111">App Store에서 받기</a>
+          <a class="btn btn-ink" id="see-mine" href="../invite/">내 기운 보기</a>
           <a class="btn btn-line" id="open-app" href="sajushopping://invite">앱이 있으면 앱에서 열기</a>
         </div>
       </div>
@@ -112,6 +112,7 @@
       if (lackKey) appParams.set("lack", lackKey);
       var query = appParams.toString();
       document.getElementById("open-app").href = "sajushopping://invite" + (query ? "?" + query : "");
+      document.getElementById("see-mine").href = "../invite/" + (query ? "?" + query : "");
 
       if (from) {
         var fromEl = document.getElementById("from");

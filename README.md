@@ -13,7 +13,7 @@ site/ (홈페이지) ───────────────────�
 | `https://{계정}.github.io/{저장소}/` | 앱 소개 | 쿠팡 파트너스 사이트 주소, 앱스토어 마케팅 URL |
 | `…/privacy.html` | 개인정보처리방침 | 앱스토어 심사 필수 |
 | `…/support.html` | 자주 묻는 질문·문의 | 앱스토어 지원 URL (필수) |
-| `…/invite/?from=이름&lack=수` | 초대 링크 착지 페이지 | 앱이 없는 사람이 공유 링크를 눌렀을 때 |
+| `…/invite/?from=이름&lack=수` | **내 기운 보기 (웹)**: 생년월일을 넣으면 설치 없이 원국·부족한 기운·오늘의 기운·보완템을 보여 줌. 입력은 브라우저 안에서만 계산하고 localStorage에만 저장 | 앱의 모든 카카오톡 공유 버튼, 홈페이지·선물 페이지의 "내 기운 보기" |
 | `…/gift/?to=엄마&el=토&ids=a,b,c` | 선물 추천 페이지 (상품·쿠팡 링크) | 앱의 선물 추천을 카카오톡으로 공유했을 때. 상품은 `products.json`에서 id로 찾고, 빠진 상품은 같은 기운 상품으로 채움 |
 | `…/products.json` | 상품 목록 | 앱의 `PRODUCT_CATALOG_URL` |
 
@@ -63,10 +63,22 @@ site/ (홈페이지) ───────────────────�
 ## 홈페이지 (site/)
 
 - 공개 전에 `privacy.html`과 `support.html`의 `{운영자 이름}`, `{문의 이메일}`을 채우세요.
-- 앱이 출시되면 `index.html`과 `invite/index.html`의 "App Store 출시 예정" 버튼을 앱스토어 링크로 바꾸세요.
+- 앱이 출시되면 `index.html`의 TestFlight 버튼을 앱스토어 링크로 바꾸세요. (`invite/`·`gift/`는 이미 App Store 링크)
 - `assets/share/*.png`는 카카오톡 공유 피드에 붙는 기운별 이미지(800×400)입니다. 앱 디자인을 바꾸면 시뮬레이터에서 개발용 실행 인자 `-exportShareImages YES`로 다시 만들어 Documents/share/에서 복사하세요.
 - 저장소에 올리면(push) 바로 배포됩니다. 상품 목록에 문제가 있어도 홈페이지는 배포되고, 상품 목록은 이전 것을 유지합니다.
 - **초대 링크는 사용자 지정 도메인이 필요합니다.** 앱은 `https://{도메인}/invite`를 인식하는데, `{계정}.github.io/{저장소}/invite`처럼 저장소 이름이 붙은 경로는 인식하지 못합니다. 유니버설 링크용 `/.well-known/apple-app-site-association`도 도메인 맨 앞에 있어야 합니다. 도메인을 사서 Settings › Pages › Custom domain에 연결하고, 앱의 `SHARE_LINK_DOMAIN`을 그 도메인으로 바꾸세요.
+
+## 웹 사주 계산 (site/assets/saju.js)
+
+앱의 사주 계산 패키지(SajuKit, Swift)를 자바스크립트로 그대로 옮긴 것입니다. 원국·진태양시 보정·음력·절기·오늘의 기운·상품 추천 순서가 앱과 똑같이 나와야 합니다.
+SajuKit이나 앱의 추천 방식(`Recommender.swift`)을 바꾸면 `saju.js`도 같이 고치고, 아래처럼 앱과 비교하세요 (앱 폴더에서).
+
+```bash
+swift run -c release --package-path tools/saju-web-reference sajudump /tmp/saju-ref.json SajuShopping/Resources/products.json
+node catalog/tests/compare_saju.js "$PWD/catalog/site/assets/saju.js" /tmp/saju-ref.json "$PWD/SajuShopping/Resources/products.json"
+```
+
+"틀림 0"이 나와야 합니다. (무작위 생일 4,000개, 서머타임·표준시가 바뀐 날 전부, 절기 직전·직후, 1900~2100년 음력 달 전체, 상품 추천 300건을 비교)
 
 ## 배포 규칙
 

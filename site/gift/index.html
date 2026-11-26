@@ -78,6 +78,7 @@
     </div>
   </footer>
 
+  <script src="../assets/stats.js"></script>
   <script>
     (function () {
       var ELEMENTS = {
@@ -155,6 +156,8 @@
           var meta = document.createElement("span");
           meta.className = "meta";
           meta.textContent = p.priceRange || "";
+          var place = (p.place || "").trim();
+          if (place) meta.appendChild(document.createTextNode(" · " + (place === "지니고 다니기" ? place : place + "에 두기")));
           if (p.rocket) {
             var r = document.createElement("span");
             r.className = "rocket";

@@ -805,6 +805,140 @@
     };
   }
 
+  // MARK: - 한 해 미리 보기 (앱의 FortuneTeller.yearAhead와 같은 계산·문구)
+
+  var PERIOD_SUMMARY = {
+    "비겁": " 나를 지지하는 기운이 강해요. 독립심과 추진력이 커지고, 사람이 모이지만 지출도 함께 늘 수 있어요.",
+    "식상": " 표현과 창작의 기운이 흘러요. 새로운 시도, 취미, 콘텐츠가 잘 풀리는 흐름이에요.",
+    "재성": " 재물과 현실 감각의 기운이 들어와요. 돈 관리와 실속 있는 선택이 빛나는 시기예요.",
+    "관성": " 책임과 명예의 기운이 들어와요. 일·조직에서 역할이 커지니 컨디션 관리가 중요해요.",
+    "인성": " 배움과 도움의 기운이 들어와요. 공부, 자격증, 귀인의 도움을 기대할 수 있어요."
+  };
+
+  /** 미리 볼 해. 9월부터 연말까지는 다음 해, 1~2월(입춘 전)은 곧 시작할 해, 그 밖에는 올해. */
+  function previewYear(nowMs) {
+    var ms = nowMs == null ? Date.now() : nowMs;
+    var current = sajuYear(ms);
+    var today = kstDateOf(ms);
+    return today.month >= 9 ? current + 1 : Math.max(current, today.year);
+  }
+
+  function yearAhead(c, year) {
+    var pillar = yearPillarOf(year);
+    var base = c.analysis;
+    var se = Stem.element(pillar.stem), be = Branch.element(pillar.branch);
+    var combined = c.counts.slice();
+    combined[se] += 1;
+    combined[be] += 1;
+    function inYear(e) { return e === se || e === be; }
+    function rank(e, list) { var i = list.indexOf(e); return i < 0 ? list.length : i; }
+
+    var min = Math.min.apply(null, combined);
+    var focus = Element.all.filter(function (e) { return combined[e] === min; }).sort(function (a, b) {
+      var ta = inYear(a), tb = inYear(b);
+      if (ta !== tb) return ta ? 1 : -1;
+      var la = rank(a, base.lacking), lb = rank(b, base.lacking);
+      if (la !== lb) return la - lb;
+      return a - b;
+    })[0];
+    var max = Math.max.apply(null, combined);
+    var strong = Element.all.filter(function (e) { return combined[e] === max; }).sort(function (a, b) {
+      var ta = inYear(a), tb = inYear(b);
+      if (ta !== tb) return ta ? -1 : 1;
+      var da = rank(a, base.dominant), db = rank(b, base.dominant);
+      if (da !== db) return da - db;
+      return a - b;
+    })[0];
+
+    var supplies = inYear(base.primaryLacking);
+    var stemGod = tenGodOfStem(pillar.stem, c.dayMaster);
+    var branchGod = tenGodOfBranch(pillar.branch, c.dayMaster);
+    var K = ELEMENT_KOREAN;
+    var incoming = se === be ? K[se] + " 기운이 두 겹으로" : K[se] + "·" + K[be] + " 기운이";
+    // 가장 강한 기운이 그해 들어오는 기운이 아니면 원래 많던 기운이 그대로 가장 강하다고 쓴다.
+    var detail = year + "년 " + pillar.korean + "(" + pillar.hanja + ")년에는 " + incoming + " " +
+      (strong === se || strong === be ? "들어와 " + K[strong] + " 기운이 강해져요. "
+                                      : "들어오고, 원래 많은 " + K[strong] + " 기운이 여전히 가장 강해요. ");
+    if (supplies && focus !== base.primaryLacking) {
+      detail += "평소 부족한 " + K[base.primaryLacking] + " 기운이 채워지는 해라, " + K[focus] + " 기운을 더하면 한 해의 균형이 좋아져요.";
+    } else if (supplies) {
+      detail += "부족한 " + K[focus] + " 기운이 조금 채워지지만 여전히 가장 적어요. " + K[focus] + " 기운을 꾸준히 챙겨 보세요.";
+    } else {
+      detail += K[focus] + " 기운을 곁에 두면 한 해의 균형이 좋아져요.";
+    }
+
+    return {
+      year: year,
+      pillar: pillar,
+      stemTenGod: stemGod,
+      branchTenGod: branchGod,
+      combinedCounts: combined,
+      focusElement: focus,
+      strongElement: strong,
+      suppliesLifetimeLack: supplies,
+      title: year + "년 " + pillar.korean + "년",
+      summary: year + "년은" + PERIOD_SUMMARY[stemGod.group],
+      detail: detail
+    };
+  }
+
+  // MARK: - 사주 타입 (앱의 SajuType과 같은 표: 일간 10 × 가장 부족한 기운 5 = 50가지)
+
+  var TYPE_NAMES = [
+    ["홀로 선 나무형", "햇빛 기다리는 나무형", "화분 없는 나무형", "가지치기 안 한 나무형", "목마른 나무형"],
+    ["혼자 핀 꽃형", "그늘 속 꽃형", "흙 없는 꽃형", "다듬지 않은 꽃형", "물 기다리는 꽃형"],
+    ["땔감 없는 태양형", "구름 낀 태양형", "비출 땅 없는 태양형", "거울 없는 태양형", "사막의 태양형"],
+    ["심지 없는 촛불형", "바람 앞의 촛불형", "촛대 없는 촛불형", "등잔 없는 촛불형", "물 없는 촛불형"],
+    ["민둥산형", "그늘진 산형", "작은 동산형", "광석 없는 산형", "계곡 없는 산형"],
+    ["씨앗 없는 텃밭형", "볕 안 드는 텃밭형", "손바닥 텃밭형", "호미 없는 텃밭형", "메마른 텃밭형"],
+    ["벨 나무 없는 무쇠형", "불 못 만난 무쇠형", "광맥 없는 무쇠형", "날 무딘 무쇠형", "담금질 못 한 무쇠형"],
+    ["꽃 없는 보석형", "빛을 못 받은 보석형", "받침 없는 보석형", "숨은 보석형", "먼지 앉은 보석형"],
+    ["숲 없는 강물형", "햇살 없는 강물형", "둑 없는 강물형", "근원 없는 강물형", "실개천형"],
+    ["새싹 없는 빗물형", "무지개 없는 빗물형", "스밀 땅 없는 빗물형", "흐린 빗물형", "한 방울 빗물형"]
+  ];
+  var TYPE_SYMBOLS = ["나무", "꽃", "태양", "촛불", "산", "텃밭", "무쇠", "보석", "강물", "빗물"];
+  var TYPE_TRAITS = [
+    "곧게 뻗는 큰 나무처럼 추진력 있는 사람",
+    "어디서든 피어나는 꽃처럼 유연한 사람",
+    "모두를 비추는 태양처럼 밝은 사람",
+    "곁을 따뜻하게 밝히는 촛불 같은 사람",
+    "듬직하게 버티는 산 같은 사람",
+    "무엇이든 길러 내는 텃밭 같은 사람",
+    "단단하고 의리 있는 무쇠 같은 사람",
+    "섬세하게 빛나는 보석 같은 사람",
+    "넓게 품는 강물 같은 사람",
+    "조용히 스며드는 빗물 같은 사람"
+  ];
+  var TYPE_GAINS = [
+    "새로 시작하는 힘이 붙어요",
+    "표현과 활력이 살아나요",
+    "마음의 중심이 잡혀요",
+    "결단이 빨라지고 정리가 쉬워져요",
+    "쉬어 가는 여유가 생겨요"
+  ];
+
+  /** 공유용 타입 ("물 없는 촛불형"). dayMaster: 천간 0~9, lacking: 오행 0~4. */
+  function sajuType(dayMaster, lacking) {
+    return {
+      dayMaster: dayMaster,
+      lacking: lacking,
+      name: TYPE_NAMES[dayMaster][lacking],
+      symbol: TYPE_SYMBOLS[dayMaster],
+      trait: TYPE_TRAITS[dayMaster],
+      summary: TYPE_TRAITS[dayMaster] + ". " + ELEMENT_KOREAN[lacking] + " 기운을 채우면 " + TYPE_GAINS[lacking] + "."
+    };
+  }
+  function chartType(c) { return sajuType(c.dayMaster, c.analysis.primaryLacking); }
+
+  /** 오행 개수로 균형 점수 (0~100, 원국 분석과 같은 식). */
+  function balanceOf(counts) {
+    var total = counts.reduce(function (s, n) { return s + n; }, 0);
+    if (total <= 0) return 0;
+    var mean = total / 5;
+    var variance = counts.reduce(function (s, n) { return s + Math.pow(n - mean, 2); }, 0) / 5;
+    return roundHalfAway((1 - variance / (mean * mean * 4)) * 100);
+  }
+
   // MARK: - 오행 해설 (앱의 ElementContent와 같은 문구)
 
   var CONTENT = [
@@ -953,9 +1087,30 @@
     return result;
   }
 
-  /** 평생 보완템. */
+  /** 오래 두고 쓰는 물건인지. 평생 보완템은 이런 물건만 고른다 (음식·뷰티 같은 소모품 제외). */
+  var CONSUMABLE_CATEGORIES = ["음식", "뷰티"];
+  function isKeepsake(p) { return CONSUMABLE_CATEGORIES.indexOf(p.category) < 0; }
+
+  /** "현관에 두기", "지니고 다니기". 두는 곳이 없으면 null. */
+  function placeLabel(p) {
+    var place = (p && p.place || "").trim();
+    if (!place) return null;
+    return place === "지니고 다니기" ? place : place + "에 두기";
+  }
+
+  /** 평생 보완템. "늘 곁에 두는 물건"이라 오래 두고 쓰는 물건만 고르고, 모자라면 전체에서 고른다. */
   function lifetimePicks(products, element, personID, audience, count) {
-    return pick(products, element, { count: count || 6, seed: "lifetime-" + personID, audience: audience });
+    count = count || 6;
+    var keepsakes = products.filter(isKeepsake);
+    var source = candidates(keepsakes, element).length >= count ? keepsakes : products;
+    return pick(source, element, { count: count, seed: "lifetime-" + personID, audience: audience });
+  }
+  /** 한 해 보완템 (예: 2027년 보완템). 평생 보완템처럼 오래 두는 물건에서 고른다. */
+  function yearPicks(products, element, year, personID, audience, count) {
+    count = count || 3;
+    var keepsakes = products.filter(isKeepsake);
+    var source = candidates(keepsakes, element).length >= count ? keepsakes : products;
+    return pick(source, element, { count: count, seed: "year-" + year + "-" + personID, audience: audience });
   }
   /** 그날의 보완템. */
   function dailyPicks(products, element, date, personID, audience, count, avoiding) {
@@ -978,6 +1133,13 @@
     content: function (e) { return CONTENT[e]; },
     chart: chart,
     daily: daily,
+    previewYear: previewYear,
+    sajuYear: sajuYear,
+    yearAhead: yearAhead,
+    sajuType: sajuType,
+    chartType: chartType,
+    balanceOf: balanceOf,
+    yearPicks: yearPicks,
     tenGodOfStem: tenGodOfStem,
     tenGodOfBranch: tenGodOfBranch,
     dayPillarOf: dayPillarOf,
@@ -1001,6 +1163,8 @@
     isUsableProduct: isUsableProduct,
     pick: pick,
     lifetimePicks: lifetimePicks,
+    isKeepsake: isKeepsake,
+    placeLabel: placeLabel,
     dailyPicks: dailyPicks
   };
 });

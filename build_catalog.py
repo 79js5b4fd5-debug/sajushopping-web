@@ -57,6 +57,8 @@ ANY_GENDER_WORDS = {"", "공용", "누구나", "전체", "남녀", "남녀공용
 # 연령대: 비우면 모든 나이. 10 = 10대 이하, 60 = 60대 이상.
 AGE_BANDS = {10, 20, 30, 40, 50, 60}
 ALL_AGE_WORDS = {"", "전체", "모든 나이", "누구나", "all"}
+# 두는 곳: 비우면 표시 안 함. 앱·웹이 "현관에 두기"처럼 보여 준다.
+PLACES = {"현관", "거실", "침실", "책상", "지니고 다니기"}
 PARTNER_HOSTS = {"link.coupang.com", "coupa.ng"}
 ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{1,63}$")
 
@@ -74,6 +76,7 @@ HEADERS = {
     "성별": "gender", "gender": "gender",
     "연령대": "ages", "ages": "ages", "나이대": "ages",
     "인기": "popularity", "popularity": "popularity",
+    "두는 곳": "place", "place": "place", "두는곳": "place",
     "로켓배송": "rocket", "rocket": "rocket",
     "검색어": "keyword", "keyword": "keyword",
     "파트너스 링크": "partnerUrl", "partnerurl": "partnerUrl",
@@ -221,6 +224,10 @@ def parse_rows(text: str, report: Report) -> list[dict]:
             else:
                 problems.append(f"'인기'는 1~5 숫자여야 해요 (3이 보통): {raw.get('popularity')}")
 
+        place = raw.get("place", "").strip()
+        if place and place not in PLACES:
+            problems.append(f"'두는 곳'은 {' · '.join(sorted(PLACES))} 중 하나 (없으면 비워 두기): {place}")
+
         rocket = parse_bool(raw.get("rocket", ""), default=False)
         if rocket is None:
             problems.append(f"'로켓배송' 값을 알 수 없어요: {raw.get('rocket')}")
@@ -262,6 +269,8 @@ def parse_rows(text: str, report: Report) -> list[dict]:
             product["ages"] = ages
         if popularity is not None and popularity != 3:
             product["popularity"] = popularity
+        if place:
+            product["place"] = place
         product["_keyword"] = raw.get("keyword") or raw["title"]
         product["_line"] = line
         products.append(product)

@@ -65,6 +65,21 @@ for (const c of ref.cases) {
     const f = S.daily(r, { year: d.d[0], month: d.d[1], day: d.d[2] });
     if (f.focusElement !== d.focus || f.strongElement !== d.strong || f.headline !== d.head || f.detail !== d.detail) bad("daily", { in: c.in, d: d.d });
   }
+  const t = S.chartType(r);
+  if (!same([t.name, t.summary], o.type)) bad("type", { in: c.in, web: [t.name, t.summary], app: o.type });
+  for (const y of o.years || []) {
+    const a = S.yearAhead(r, y.y);
+    if (a.focusElement !== y.focus || a.strongElement !== y.strong || a.title !== y.title || a.summary !== y.summary || a.detail !== y.detail) {
+      bad("yearAhead", { in: c.in, y: y.y, web: [a.focusElement, a.strongElement, a.detail], app: [y.focus, y.strong, y.detail] });
+    }
+  }
+}
+
+// 미리 볼 해
+for (const [sec, year] of ref.previews || []) {
+  checked++;
+  const web = S.previewYear(sec * 1000);
+  if (web !== year) bad("previewYear", { sec, web, app: year });
 }
 
 // 해시
@@ -83,6 +98,10 @@ for (const p of ref.picks) {
   const daily = S.dailyPicks(products, p.el, date, p.id, audience).map(x => x.id);
   if (!same(life, p.life)) bad("lifetime", { id: p.id, web: life, app: p.life });
   if (!same(daily, p.daily)) bad("dailyPicks", { id: p.id, web: daily, app: p.daily });
+  if (p.year) {
+    const yearIDs = S.yearPicks(products, p.el, 2027 + ref.picks.indexOf(p) % 3, p.id, audience).map(x => x.id);
+    if (!same(yearIDs, p.year)) bad("yearPicks", { id: p.id, web: yearIDs, app: p.year });
+  }
 }
 
 console.log("비교", checked, "틀림", fail);

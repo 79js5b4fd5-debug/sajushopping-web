@@ -332,6 +332,23 @@
           </div>
         </template>
 
+        <!-- 내 타입 공유 (앱의 공유하기와 같은 역할). 궁합 바로 아래에 둬서 찾기 쉽게 한다. -->
+        <div class="block">
+          <div class="block-head">
+            <h2>내 결과 공유하기</h2>
+            <p>친구는 무슨 형일까? 링크를 받은 친구가 생년월일을 넣으면 나와 서로 채워 주는 사이인지도 나와요. 내 생일은 링크에 들어가지 않고, 이름은 적었을 때만 들어가요.</p>
+          </div>
+          <div class="share-row">
+            <button class="btn btn-kakao" type="button" id="share-kakao" hidden>
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 3C6.48 3 2 6.54 2 10.9c0 2.82 1.87 5.3 4.69 6.7-.15.53-.97 3.4-1 3.62 0 0-.02.17.09.24.11.06.24.01.24.01.32-.04 3.7-2.42 4.28-2.83.55.08 1.12.12 1.7.12 5.52 0 10-3.54 10-7.86S17.52 3 12 3z"/></svg>
+              카카오톡으로 내 결과 보내기
+            </button>
+            <button class="btn btn-line" type="button" id="story">인스타 스토리 이미지 만들기</button>
+            <button class="btn btn-line" type="button" id="share">내 결과 링크 보내기</button>
+          </div>
+          <p class="share-status" id="share-status" role="status"></p>
+        </div>
+
         <div class="today">
           <p class="whose">내 사주로 본 오늘</p>
           <p class="date" id="t-date"></p>
@@ -399,22 +416,6 @@
             <p id="life-hint"></p>
           </div>
           <ul class="picks" id="life-picks"><li class="empty">불러오고 있어요…</li></ul>
-        </div>
-
-        <div class="block">
-          <div class="block-head">
-            <h2>친구는 무슨 형일까?</h2>
-            <p>링크를 받은 친구가 생년월일을 넣으면 서로 채워 주는 사이인지도 나와요. 내 생일은 링크에 들어가지 않아요. 이름은 적었을 때만 들어가요.</p>
-          </div>
-          <div class="share-row">
-            <button class="btn btn-kakao" type="button" id="share-kakao" hidden>
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 3C6.48 3 2 6.54 2 10.9c0 2.82 1.87 5.3 4.69 6.7-.15.53-.97 3.4-1 3.62 0 0-.02.17.09.24.11.06.24.01.24.01.32-.04 3.7-2.42 4.28-2.83.55.08 1.12.12 1.7.12 5.52 0 10-3.54 10-7.86S17.52 3 12 3z"/></svg>
-              카카오톡으로 보내기
-            </button>
-            <button class="btn btn-line" type="button" id="story">인스타 스토리 이미지 만들기</button>
-            <button class="btn btn-line" type="button" id="share">친구에게 보내기</button>
-          </div>
-          <p class="share-status" id="share-status" role="status"></p>
         </div>
 
         <div class="story-modal" id="story-modal" role="dialog" aria-modal="true" aria-labelledby="story-title" hidden>
@@ -1491,7 +1492,7 @@
       $("share-kakao").addEventListener("click", function () {
         if (shareLack === null) return;
         stat("share-kakao");
-        sendKakao(myShare(), $("share-status"), "친구에게 보내기");
+        sendKakao(myShare(), $("share-status"), "내 결과 링크 보내기");
       });
 
       $("share").addEventListener("click", function () {

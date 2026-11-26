@@ -318,7 +318,7 @@
         <div id="compares"></div>
         <div class="app-nudge" id="nudge-save" hidden>
           <p class="nudge-title">궁합 본 친구, 앱에 모아 두세요</p>
-          <p class="nudge-text" id="nudge-save-text">앱에 가족·친구 사주를 저장해 두면 사람마다 부족한 기운에 맞는 선물을 바로 골라 줘요.</p>
+          <p class="nudge-text" id="nudge-save-text">앱에 가족·친구 사주를 저장해 두면 언제든 나와의 궁합을 다시 보고 바로 보낼 수 있어요. 사람마다 부족한 기운에 맞는 선물도 골라 줘요.</p>
           <div class="actions">
             <a class="btn btn-ink" id="nudge-store" href="https://apps.apple.com/kr/app/id6838945111">App Store에서 받기</a>
             <a class="btn btn-line" id="nudge-open" href="sajushopping://invite">앱이 있으면 앱에서 열기</a>
@@ -347,16 +347,16 @@
           </div>
         </template>
 
-        <!-- 내 타입 공유 (앱의 공유하기와 같은 역할). 궁합 바로 아래에 둬서 찾기 쉽게 한다. -->
+        <!-- 내 타입 공유 = 친구에게 물어보기 (앱 결과 바로 아래 "친구는 무슨 형일까?" 카드와 같은 역할). 궁합 바로 아래에 둬서 찾기 쉽게 한다. -->
         <div class="block">
           <div class="block-head">
-            <h2>내 결과 공유하기</h2>
-            <p>친구는 무슨 형일까? 링크를 받은 친구가 생년월일을 넣으면 나와 서로 채워 주는 사이인지도 나와요. 내 생일은 링크에 들어가지 않고, 이름은 적었을 때만 들어가요.</p>
+            <h2>친구는 무슨 형일까?</h2>
+            <p>링크를 받은 친구가 생년월일을 넣으면 친구 타입과 나와 서로 채워 주는 사이인지 바로 나와요. 앱을 받지 않아도 되고, 내 생일은 링크에 들어가지 않아요. 이름은 적었을 때만 들어가요.</p>
           </div>
           <div class="share-row">
             <button class="btn btn-kakao" type="button" id="share-kakao" hidden>
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 3C6.48 3 2 6.54 2 10.9c0 2.82 1.87 5.3 4.69 6.7-.15.53-.97 3.4-1 3.62 0 0-.02.17.09.24.11.06.24.01.24.01.32-.04 3.7-2.42 4.28-2.83.55.08 1.12.12 1.7.12 5.52 0 10-3.54 10-7.86S17.52 3 12 3z"/></svg>
-              카카오톡으로 내 결과 보내기
+              카카오톡으로 물어보기
             </button>
             <button class="btn btn-line" type="button" id="story">인스타 스토리 이미지 만들기</button>
             <button class="btn btn-line" type="button" id="share">내 결과 링크 보내기</button>
@@ -563,7 +563,20 @@
         var total = a.reduce(function (t, n) { return t + n; }, 0);
         return total === 6 || total === 8 ? a : null;
       }
-      function whoOf(name, fallback) { return name ? (/님$/.test(name) ? name : name + "님") : fallback; }
+      // 가족 호칭이면 님을 붙이지 않는다 ("엄마", "우리 엄마" → "엄마"). 앱 ShareAddress.familyTerms와 같은 목록.
+      // 앱에 저장한 가족과 본 궁합을 보내면 링크에 "엄마"가 들어온다.
+      var FAMILY_TERMS = ["엄마", "아빠", "어머니", "아버지", "어머님", "아버님", "부모님",
+        "남편", "아내", "와이프", "신랑", "여보",
+        "할머니", "할아버지", "외할머니", "외할아버지",
+        "언니", "오빠", "누나", "형", "동생", "여동생", "남동생", "형님", "누님",
+        "아들", "딸", "이모", "고모", "삼촌", "외삼촌", "큰아빠", "큰엄마", "작은아빠", "작은엄마",
+        "장모님", "장인어른", "시어머니", "시아버지"];
+      function whoOf(name, fallback) {
+        if (!name) return fallback;
+        var term = name.replace(/^우리\s+/, "");
+        if (FAMILY_TERMS.indexOf(term) >= 0) return term;
+        return /님$/.test(name) ? name : name + "님";
+      }
 
       /** 링크에 담긴 한 사람. counts·lack이 있어야 비교할 수 있다. */
       function linkPerson(nameKey, lackKey, countsKey, dmKey, fallback) {

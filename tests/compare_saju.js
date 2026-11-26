@@ -66,7 +66,7 @@ for (const c of ref.cases) {
     if (f.focusElement !== d.focus || f.strongElement !== d.strong || f.headline !== d.head || f.detail !== d.detail) bad("daily", { in: c.in, d: d.d });
   }
   const t = S.chartType(r);
-  if (!same([t.name, t.summary], o.type)) bad("type", { in: c.in, web: [t.name, t.summary], app: o.type });
+  if (!same([t.name, t.summary, t.subtitle], o.type)) bad("type", { in: c.in, web: [t.name, t.summary, t.subtitle], app: o.type });
   for (const y of o.years || []) {
     const a = S.yearAhead(r, y.y);
     if (a.focusElement !== y.focus || a.strongElement !== y.strong || a.title !== y.title || a.summary !== y.summary || a.detail !== y.detail) {

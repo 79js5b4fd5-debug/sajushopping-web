@@ -919,10 +919,16 @@
 
   /** 공유용 타입 ("물 없는 촛불형"). dayMaster: 천간 0~9, lacking: 오행 0~4. */
   function sajuType(dayMaster, lacking) {
+    var dmElement = Stem.element(dayMaster);
+    // 일간 이름 ("임수(壬水)"): 사람들이 "나 임수야"라고 할 때의 그 말
+    var dmName = STEM_KOREAN[dayMaster] + ELEMENT_KOREAN[dmElement] + "(" + STEM_HANJA[dayMaster] + ELEMENT_HANJA[dmElement] + ")";
     return {
       dayMaster: dayMaster,
       lacking: lacking,
       name: TYPE_NAMES[dayMaster][lacking],
+      dayMasterName: dmName,
+      // 타입 이름 아래 한 줄 ("임수(壬水) 일간 · 목(木) 부족")
+      subtitle: dmName + " 일간 · " + ELEMENT_KOREAN[lacking] + "(" + ELEMENT_HANJA[lacking] + ") 부족",
       symbol: TYPE_SYMBOLS[dayMaster],
       trait: TYPE_TRAITS[dayMaster],
       summary: TYPE_TRAITS[dayMaster] + ". " + ELEMENT_KOREAN[lacking] + " 기운을 채우면 " + TYPE_GAINS[lacking] + "."

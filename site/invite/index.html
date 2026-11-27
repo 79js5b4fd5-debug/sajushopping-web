@@ -26,14 +26,8 @@
     .muted { color: var(--ink-2); }
     .small { font-size: 14px; }
 
-    /* 초대 띠 */
-    .invite-note {
-      display: grid; grid-template-columns: 44px 1fr; gap: 0 14px; align-items: center;
-      background: var(--paper-raised); padding: 14px 16px; margin-bottom: 28px;
-    }
-    .invite-note .seal { width: 44px; height: 44px; font-size: 26px; margin: 0; border-radius: 6px; grid-row: span 2; }
-    .invite-note strong { font-size: 15px; line-height: 1.45; }
-    .invite-note a { font-size: 14px; color: var(--ink-2); }
+    /* 링크로 왔을 때 입력 위 한 줄 */
+    .invite-line { background: var(--paper-raised); padding: 12px 14px; margin: 0 0 22px; font-size: 15px; font-weight: 600; line-height: 1.5; word-break: keep-all; }
 
     /* 입력 */
     .field { border: 0; margin: 0 0 22px; padding: 0; min-width: 0; }
@@ -71,6 +65,12 @@
     .field > label.check { display: inline-flex; font-weight: 600; margin: 0; }
     .form-error { color: var(--seal); font-weight: 600; font-size: 15px; margin: 0 0 14px; }
     .submit { width: 100%; }
+    .more-fields { border: 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin: 0 0 22px; }
+    .more-fields:first-of-type { border-top: 1px solid var(--rule); }
+    .more-fields > summary { padding: 14px 0; font-size: 15px; justify-content: flex-start; align-items: center; }
+    .more-fields > summary::after { margin-left: auto; }
+    .more-fields > summary .muted { font-weight: 500; }
+    .more-fields > div { padding: 6px 0 0; color: var(--ink); }
     .fine { color: var(--ink-3); font-size: 13px; line-height: 1.6; margin: 14px 0 0; }
 
     /* 결과 맨 위 */
@@ -89,15 +89,20 @@
     .compare-table .low { color: var(--seal); font-weight: 700; }
     .compare-table .type { display: block; font-size: 12px; font-weight: 500; color: var(--ink-2); }
     .verdict { font-size: 18px; font-weight: 700; margin: 0 0 6px; }
-    .compare .share-row { margin-top: 18px; }
+    .compare .pair-share { margin-top: 16px; }
     .insight { font-size: 16px; font-weight: 600; line-height: 1.55; margin: 0 0 8px; word-break: keep-all; }
     .gift-link { display: inline-block; font-size: 14px; color: var(--ink-2); margin-top: 2px; }
 
-    /* 친구가 보낸 두 사람 궁합 (궁합 링크로 열었을 때 맨 위) */
-    .pair-note { background: var(--paper-raised); padding: 16px 16px 18px; margin-bottom: 28px; }
-    .pair-note .eyebrow { margin: 0; }
-    .me .pair-note h2 { margin: 4px 0 12px; }
-    .pair-note .compare-table { margin-bottom: 12px; }
+    /* 보낸 사람이 본 궁합 (궁합 링크로 열었을 때, 내 궁합 아래에 접어 둔다) */
+    .pair-ref { margin-top: 28px; background: var(--paper-raised); border: 0; }
+    .pair-ref:first-of-type { border-top: 0; }
+    .pair-ref > summary { padding: 14px 16px; font-weight: 400; align-items: center; }
+    .pair-ref .pair-ref-head { display: block; }
+    .pair-ref .pair-ref-head .eyebrow { display: block; font-size: 13px; }
+    .pair-ref .pair-ref-head b { display: block; font-size: 16px; margin-top: 2px; }
+    .pair-ref > div { padding: 0 16px 18px; color: var(--ink); }
+    .pair-ref .compare-table { margin-bottom: 12px; }
+    .pair-ref .reading { margin-top: 12px; }
 
     /* 한 해 미리 보기 */
     .year-row { display: grid; grid-template-columns: 40px 1fr; gap: 14px; background: var(--paper-raised); padding: 16px 16px 16px 12px; }
@@ -134,7 +139,6 @@
     .reading .tries { margin: 0 0 16px; padding: 12px 14px; background: var(--paper-raised); }
     .reading .tries b { display: block; font-size: 13px; color: var(--seal, var(--ink)); margin-bottom: 4px; }
     .reading .tries ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.7; word-break: keep-all; }
-    .pair-note .reading { margin-top: 12px; }
     .birth-line button {
       font: inherit; color: var(--ink-2); background: none; border: 0; padding: 0; margin-left: 8px;
       text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px; cursor: pointer;
@@ -190,15 +194,20 @@
     .fill span { font-weight: 600; font-size: 15px; }
 
     /* 공유·앱 */
-    .share-row { display: flex; flex-direction: column; gap: 10px; }
-    .share-row .btn { width: 100%; }
     .btn-kakao { background: #FEE500; color: rgba(0, 0, 0, 0.85); border-color: #FEE500; gap: 8px; }
     .btn-kakao[hidden] { display: none; }
     .share-status { color: var(--ink-2); font-size: 14px; margin: 4px 0 0; min-height: 1.5em; }
+    /* 내 결과 바로 아래 "친구는 무슨 형일까?": 큰 카톡 버튼 하나 + 작은 버튼 둘 */
+    .ask-friends { margin-top: 28px; background: var(--paper-raised); padding: 18px 16px 12px; }
+    .me .ask-friends h2 { font-size: 19px; margin: 0 0 4px; }
+    .ask-friends > p { color: var(--ink-2); font-size: 14px; line-height: 1.6; margin: 0 0 14px; word-break: keep-all; }
+    .ask-friends .ask-main { width: 100%; }
+    .ask-more { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .btn-sm { min-height: 42px; padding: 0 10px; font-size: 14px; gap: 6px; }
     .cta { margin-top: 44px; background: var(--paper-raised); padding: 24px 20px; }
     .today + .cta { margin-top: 10px; }
-    /* 궁합 아래 앱 안내 */
-    .app-nudge { margin-top: 28px; border: 1px solid var(--rule); padding: 18px 18px 20px; }
+    /* 맨 아래 앱 안내 */
+    .app-nudge { margin-top: 44px; border: 1px solid var(--rule); padding: 18px 18px 20px; }
     .app-nudge .nudge-title { font-weight: 700; font-size: 17px; margin: 0 0 4px; }
     .app-nudge .nudge-text { color: var(--ink-2); font-size: 15px; line-height: 1.6; margin: 0 0 14px; word-break: keep-all; }
     .app-nudge .actions { display: flex; flex-direction: column; gap: 10px; }
@@ -227,26 +236,9 @@
 
   <main class="me">
     <div class="wrap">
-      <div class="invite-note" id="invite-note" hidden>
-        <div class="seal" id="invite-seal" aria-hidden="true">氣</div>
-        <strong id="invite-text"></strong>
-        <a id="invite-gift" href="../gift/">선물 고르기 →</a>
-      </div>
-
-      <!-- 궁합 링크(?from=…&with=…)로 열면: 보낸 친구와 그 상대의 궁합 -->
-      <div class="pair-note" id="pair" hidden>
-        <p class="eyebrow">친구가 보낸 궁합</p>
-        <h2 id="p-title"></h2>
-        <table class="compare-table" id="p-table"></table>
-        <p class="verdict" id="p-verdict"></p>
-        <p class="insight" id="p-insight"></p>
-        <p class="muted small" id="p-detail" style="margin:0"></p>
-        <p class="note-line" id="p-balance"></p>
-        <div class="reading" id="p-reading"></div>
-      </div>
-
-      <!-- 입력 -->
+      <!-- 입력 (링크로 왔어도 입력이 먼저. 보낸 사람 이야기는 한 줄만, 궁합은 내 결과 아래에) -->
       <section id="form-view">
+        <p class="invite-line" id="invite-line" hidden></p>
         <p class="eyebrow">부족한 기운 테스트 · 설치 없이 1분</p>
         <h1>나는 무슨 형일까?</h1>
         <p class="lead" id="form-lead">생년월일만 넣으면 사주 여덟 글자로 50가지 타입 중 나의 타입과 부족한 기운, 그 기운을 채워 줄 물건을 알려 드려요.</p>
@@ -286,26 +278,32 @@
             <p class="help">밤 12시(자정)는 오전 12시, 낮 12시는 오후 12시예요. 분을 모르면 비워 두세요. 시간을 모르면 '몰라요'를 고르면 시주 없이 여섯 글자로 봐요.</p>
           </fieldset>
 
-          <fieldset class="field">
-            <legend>성별</legend>
-            <div class="seg">
-              <label><input type="radio" name="gender" value="female"><span>여성</span></label>
-              <label><input type="radio" name="gender" value="male"><span>남성</span></label>
+          <!-- 안 넣어도 결과가 나오는 칸은 접어 둔다 (성별: 안 고르면 남녀 공용 물건만, 태어난 곳: 서울, 이름: 보낼 때 물어본다) -->
+          <details class="more-fields" id="more-fields">
+            <summary>성별 · 태어난 곳 · 이름 <span class="muted">(선택)</span></summary>
+            <div>
+              <fieldset class="field">
+                <legend>성별</legend>
+                <div class="seg">
+                  <label><input type="radio" name="gender" value="female"><span>여성</span></label>
+                  <label><input type="radio" name="gender" value="male"><span>남성</span></label>
+                </div>
+                <p class="help">추천 물건을 고를 때만 써요. 안 고르면 남녀 공용 물건으로 골라요.</p>
+              </fieldset>
+
+              <div class="field">
+                <label for="city">태어난 곳</label>
+                <select class="select" id="city" name="city"></select>
+                <p class="help">태어난 곳의 경도로 시각을 몇 분 보정해요. 안 고르면 서울로 봐요. 가까운 곳이면 결과는 거의 같아요.</p>
+              </div>
+
+              <div class="field">
+                <label for="name">이름 또는 별명</label>
+                <input class="input" id="name" name="nickname" autocomplete="off" maxlength="20" placeholder="예: 지수">
+                <p class="help">결과를 친구에게 보낼 때만 링크에 들어가요. 비워 두면 보낼 때 한 번 물어봐요.</p>
+              </div>
             </div>
-            <p class="help">추천 물건을 고를 때만 써요.</p>
-          </fieldset>
-
-          <div class="field">
-            <label for="city">태어난 곳</label>
-            <select class="select" id="city" name="city"></select>
-            <p class="help">태어난 곳의 경도로 시각을 몇 분 보정해요. 목록에 없으면 가장 가까운 곳을 고르세요. 가까운 곳이면 결과는 거의 같아요.</p>
-          </div>
-
-          <div class="field">
-            <label for="name">이름 또는 별명 <span class="muted" style="font-weight:500">(선택)</span></label>
-            <input class="input" id="name" name="nickname" autocomplete="off" maxlength="20" placeholder="예: 지수">
-            <p class="help">결과를 친구에게 보낼 때만 링크에 들어가요. 비워 두면 '친구'로 보여요.</p>
-          </div>
+          </details>
 
           <div class="field">
             <label class="check"><input type="checkbox" id="remember" checked> 이 기기에 기억하기</label>
@@ -336,16 +334,36 @@
           <div id="r-reading"></div>
         </div>
 
-        <!-- 링크를 보낸 친구(와 궁합 링크라면 그 상대)와 나 비교. compare-tpl로 한 사람에 한 블록씩 만든다. -->
-        <div id="compares"></div>
-        <div class="app-nudge" id="nudge-save" hidden>
-          <p class="nudge-title">궁합 본 친구, 앱에 모아 두세요</p>
-          <p class="nudge-text" id="nudge-save-text">앱에 가족·친구 사주를 저장해 두면 언제든 나와의 궁합을 다시 보고 바로 보낼 수 있어요. 사람마다 부족한 기운에 맞는 선물도 골라 줘요.</p>
-          <div class="actions">
-            <a class="btn btn-ink" id="nudge-store" href="https://apps.apple.com/kr/app/id6838945111">App Store에서 받기</a>
-            <a class="btn btn-line" id="nudge-open" href="sajushopping://invite">앱이 있으면 앱에서 열기</a>
+        <!-- 내 결과 바로 아래: "나는 ○○ 부족하대, 너는?" 보내기 (앱 결과 아래 "친구는 무슨 형일까?" 카드와 같은 역할) -->
+        <div class="ask-friends">
+          <h2>친구는 무슨 형일까?</h2>
+          <p>링크를 받은 친구가 생년월일을 넣으면 친구 결과와 나와의 궁합이 나와요. 설치하지 않아도 되고, 내 생일은 링크에 들어가지 않아요.</p>
+          <button class="btn btn-kakao ask-main" type="button" id="share-kakao" hidden>
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 3C6.48 3 2 6.54 2 10.9c0 2.82 1.87 5.3 4.69 6.7-.15.53-.97 3.4-1 3.62 0 0-.02.17.09.24.11.06.24.01.24.01.32-.04 3.7-2.42 4.28-2.83.55.08 1.12.12 1.7.12 5.52 0 10-3.54 10-7.86S17.52 3 12 3z"/></svg>
+            카카오톡으로 물어보기
+          </button>
+          <div class="ask-more">
+            <button class="btn btn-line btn-sm" type="button" id="share">링크 보내기</button>
+            <button class="btn btn-line btn-sm" type="button" id="story">스토리 이미지</button>
           </div>
+          <p class="share-status" id="share-status" role="status"></p>
         </div>
+
+        <!-- 링크를 보낸 사람과 나 비교 (보낸 사람 한 명과만. 궁합 링크의 상대와는 비교하지 않는다) -->
+        <div id="compares"></div>
+
+        <!-- 궁합 링크(?from=…&with=…)로 열면: 보낸 사람이 본 궁합. 모르는 사람일 수 있어서 접어 둔다 -->
+        <details class="pair-ref" id="pair" hidden>
+          <summary><span class="pair-ref-head"><span class="eyebrow">보낸 사람이 본 궁합</span><b id="p-title"></b></span></summary>
+          <div>
+            <table class="compare-table" id="p-table"></table>
+            <p class="verdict" id="p-verdict"></p>
+            <p class="insight" id="p-insight"></p>
+            <p class="muted small" id="p-detail" style="margin:0"></p>
+            <p class="note-line" id="p-balance"></p>
+            <div class="reading" id="p-reading"></div>
+          </div>
+        </details>
         <template id="compare-tpl">
           <div class="block compare">
             <div class="block-head">
@@ -358,34 +376,18 @@
             <p class="muted small" data-k="detail" style="margin:0"></p>
             <p class="note-line" data-k="balance"></p>
             <div class="reading" data-k="reading"></div>
-            <div class="share-row">
-              <button class="btn btn-kakao" type="button" data-k="kakao" hidden>
-                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 3C6.48 3 2 6.54 2 10.9c0 2.82 1.87 5.3 4.69 6.7-.15.53-.97 3.4-1 3.62 0 0-.02.17.09.24.11.06.24.01.24.01.32-.04 3.7-2.42 4.28-2.83.55.08 1.12.12 1.7.12 5.52 0 10-3.54 10-7.86S17.52 3 12 3z"/></svg>
-                카카오톡으로 궁합 보내기
+            <!-- 궁합 보내기는 작게 (큰 버튼은 위 "친구는 무슨 형일까?" 하나) -->
+            <div class="ask-more pair-share">
+              <button class="btn btn-kakao btn-sm" type="button" data-k="kakao" hidden>
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 3C6.48 3 2 6.54 2 10.9c0 2.82 1.87 5.3 4.69 6.7-.15.53-.97 3.4-1 3.62 0 0-.02.17.09.24.11.06.24.01.24.01.32-.04 3.7-2.42 4.28-2.83.55.08 1.12.12 1.7.12 5.52 0 10-3.54 10-7.86S17.52 3 12 3z"/></svg>
+                궁합 보내기
               </button>
-              <button class="btn btn-line" type="button" data-k="share">궁합 결과 보내기</button>
+              <button class="btn btn-line btn-sm" type="button" data-k="share">궁합 링크</button>
             </div>
             <p class="share-status" data-k="status" role="status"></p>
             <a class="gift-link" data-k="gift" href="../gift/"></a>
           </div>
         </template>
-
-        <!-- 내 타입 공유 = 친구에게 물어보기 (앱 결과 바로 아래 "친구는 무슨 형일까?" 카드와 같은 역할). 궁합 바로 아래에 둬서 찾기 쉽게 한다. -->
-        <div class="block">
-          <div class="block-head">
-            <h2>친구는 무슨 형일까?</h2>
-            <p>링크를 받은 친구가 생년월일을 넣으면 친구 타입과 나와 서로 채워 주는 사이인지 바로 나와요. 앱을 받지 않아도 되고, 내 생일은 링크에 들어가지 않아요. 이름은 적었을 때만 들어가요.</p>
-          </div>
-          <div class="share-row">
-            <button class="btn btn-kakao" type="button" id="share-kakao" hidden>
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 3C6.48 3 2 6.54 2 10.9c0 2.82 1.87 5.3 4.69 6.7-.15.53-.97 3.4-1 3.62 0 0-.02.17.09.24.11.06.24.01.24.01.32-.04 3.7-2.42 4.28-2.83.55.08 1.12.12 1.7.12 5.52 0 10-3.54 10-7.86S17.52 3 12 3z"/></svg>
-              카카오톡으로 물어보기
-            </button>
-            <button class="btn btn-line" type="button" id="story">인스타 스토리 이미지 만들기</button>
-            <button class="btn btn-line" type="button" id="share">내 결과 링크 보내기</button>
-          </div>
-          <p class="share-status" id="share-status" role="status"></p>
-        </div>
 
         <div class="today">
           <p class="whose">내 사주로 본 오늘</p>
@@ -395,16 +397,10 @@
           <p class="detail" id="t-detail"></p>
         </div>
 
-        <!-- 오늘 바로 아래: 내일의 기운은 앱 알림·위젯으로 (앱으로 이끄는 곳) -->
+        <!-- 오늘 바로 아래: 내일 미리 보기 (웹에서 다 보여 준다. 앱 권유는 맨 아래 한 곳에만) -->
         <div class="cta">
-          <h2 id="cta-title">내일의 기운은 앱에서 미리</h2>
+          <h2>내일 미리 보기</h2>
           <p id="cta-text"></p>
-          <div class="actions" id="cta-ios">
-            <a class="btn btn-ink" href="https://apps.apple.com/kr/app/id6838945111">App Store에서 받기</a>
-            <a class="btn btn-line" id="open-app" href="sajushopping://invite">앱이 있으면 앱에서 열기</a>
-          </div>
-          <p class="fine" id="cta-android-soon">안드로이드 앱은 준비 중이에요.</p>
-          <p class="fine" id="cta-android" hidden>안드로이드 앱은 준비 중이에요. 그동안 이 페이지를 홈 화면에 추가해 두면 앱처럼 바로 열 수 있어요.</p>
         </div>
 
         <div class="block">
@@ -466,6 +462,30 @@
             <p id="life-hint"></p>
           </div>
           <ul class="picks" id="life-picks"><li class="empty">불러오고 있어요…</li></ul>
+        </div>
+
+        <!-- 앱 안내는 여기 한 곳에만 (웹에서 다 되고, 매일 받아 보고 싶은 사람만 앱으로) -->
+        <div class="app-nudge" id="app-block">
+          <p class="nudge-title">매일 받아 보고 싶다면 앱으로</p>
+          <p class="nudge-text" id="app-text">앱에서는 매일 저녁 내일의 기운 알림과 홈 화면 위젯으로 바로 볼 수 있어요. 가족·친구 사주를 저장해 두면 나와의 궁합과 선물도 언제든 다시 볼 수 있어요.</p>
+          <div class="actions" id="app-ios">
+            <a class="btn btn-ink" id="app-store" href="https://apps.apple.com/kr/app/id6838945111">App Store에서 받기</a>
+            <a class="btn btn-line" id="open-app" href="sajushopping://invite">앱이 있으면 앱에서 열기</a>
+          </div>
+          <p class="fine" id="app-android" hidden>안드로이드 앱은 준비 중이에요. 그동안 이 페이지를 홈 화면에 추가해 두면 앱처럼 바로 열 수 있어요.</p>
+        </div>
+
+        <!-- 보낼 때 이름이 비어 있으면 한 번 묻는다: 링크가 몇 번 건너가도 누구와의 궁합인지 알 수 있게 -->
+        <div class="story-modal" id="name-modal" role="dialog" aria-modal="true" aria-labelledby="name-title" hidden>
+          <div class="story-sheet">
+            <h2 id="name-title">누가 보냈는지 알려 줄까요?</h2>
+            <p class="muted small" style="margin:0 0 12px">이름이나 별명을 넣으면 받은 친구 화면에 "나와 지수님"처럼 보여요. 비워 두면 "친구"로 보여요. 생일은 넣지 않아요.</p>
+            <input class="input" id="name-ask" autocomplete="off" maxlength="20" placeholder="예: 지수" aria-label="이름 또는 별명">
+            <div class="story-actions">
+              <button class="btn btn-ink" type="button" id="name-ok">이름 넣고 보내기</button>
+              <button class="btn btn-line" type="button" id="name-skip">이름 없이 보내기</button>
+            </div>
+          </div>
         </div>
 
         <div class="story-modal" id="story-modal" role="dialog" aria-modal="true" aria-labelledby="story-title" hidden>
@@ -625,29 +645,21 @@
       if (friend.dm !== null) appParams.set("dm", String(friend.dm));
       // 초대 링크로 왔으면 앱에서 그 친구와 비교, 아니면 앱의 오늘 화면을 연다.
       $("open-app").href = appParams.toString() ? "sajushopping://invite?" + appParams.toString() : "sajushopping://today";
-      $("nudge-open").href = $("open-app").href;
-      // 어디서 앱으로 넘어가는지 센다 (통계가 켜져 있을 때만)
-      [["nudge-store", "app-store-compare"], ["nudge-open", "open-app-compare"], ["open-app", "open-app-daily"]].forEach(function (x) {
+      // 어디서 앱으로 넘어가는지 센다 (통계가 켜져 있을 때만). 앱 안내는 맨 아래 한 곳뿐이다.
+      [["app-store", "app-store-bottom"], ["open-app", "open-app-bottom"]].forEach(function (x) {
         $(x[0]).addEventListener("click", function () { stat(x[1]); });
       });
 
-      if (isPair) {
-        renderPair(friend, partner);
-        text("form-lead", "생년월일을 넣으면 나의 타입과 함께 " + friend.who + ", " + josa(partner.who, "과", "와") +
-          " 나는 어떤 사이인지 알려 드려요.");
-      } else if (friend.lack !== null) {
-        var who = friend.who;
-        $("invite-seal").textContent = E.hanja(friend.lack);
-        $("invite-seal").style.background = COLORS[friend.lack];
-        text("invite-text", friend.type
-          ? josa(who, "은", "는") + " " + friend.type.name + ", " + E.label(friend.lack) + " 기운이 필요해요"
-          : who + "에게는 " + E.label(friend.lack) + " 기운이 필요해요");
-        if (friend.counts) {
-          text("form-lead", "생년월일을 넣으면 나의 타입과 함께 " + josa(who, "과", "와") + " 서로 채워 주는 사이인지 알려 드려요.");
-        }
-        $("invite-gift").href = giftHref(friend);
-        $("invite-gift").textContent = who + "에게 어울리는 선물 보기 →";
-        $("invite-note").hidden = false;
+      // 링크로 왔으면 입력 위에 한 줄만: 누가 보냈는지와, 내 결과 다음에 궁합이 나온다는 것.
+      // 보낸 사람의 타입·궁합은 내 결과 아래(renderCompares)에서 보여 준다.
+      if (friend.lack !== null) {
+        var sender = josa(friend.who, "이", "가");
+        text("invite-line", isPair
+          ? sender + " " + josa(partner.who, "과", "와") + "의 궁합을 보냈어요. 내 결과를 먼저 보고, " + josa(friend.who, "과", "와") + " 나의 궁합도 확인해 봐요."
+          : comparable(friend)
+            ? sender + " 보냈어요. 내 결과를 먼저 보고, " + josa(friend.who, "과", "와") + " 나의 궁합도 확인해 봐요."
+            : sender + " 보냈어요. 나는 무슨 형인지 알아봐요.");
+        $("invite-line").hidden = false;
       }
 
       function giftHref(p) {
@@ -660,10 +672,9 @@
       if (/KAKAOTALK/i.test(navigator.userAgent)) $("kakao-note").hidden = false;
       var isAndroid = /Android/i.test(navigator.userAgent);
       if (isAndroid) {
-        text("cta-title", "내일의 기운도 미리 볼까요?");
-        $("cta-ios").hidden = true;
-        $("cta-android-soon").hidden = true;
-        $("cta-android").hidden = false;
+        $("app-ios").hidden = true;
+        $("app-text").hidden = true;
+        $("app-android").hidden = false;
       }
 
       // MARK: 입력
@@ -757,8 +768,7 @@
           }
           minute = mText ? +mText : 0;
         }
-        var gender = radioValue("gender");
-        if (!gender) return { error: "성별을 골라 주세요." };
+        var gender = radioValue("gender") || null;  // 안 고르면 남녀 공용 물건만 (render의 audience)
         var city = CITY[citySelect.value] ? citySelect.value : "서울";
         return {
           birth: {
@@ -982,7 +992,8 @@
         var today = S.todayInKorea();
         var fortune = S.daily(chart, today);
         var tomorrow = S.daily(chart, S.addDays(today, 1));
-        var audience = S.makeAudience(chart.input.gender, chart.input.year, today);
+        // 성별을 안 골랐으면 gender가 null → 남녀 공용 물건만 고른다 (chart.input.gender는 계산용 기본값이라 쓰지 않는다)
+        var audience = S.makeAudience(person.birth.gender || null, chart.input.year, today);
 
         var type = S.chartType(chart);
         text("r-type", type.name);
@@ -1050,9 +1061,7 @@
         text("life-hint", E.label(lack) + " 기운을 늘 곁에 두는 물건");
 
         var tomorrowLine = "내일(" + tomorrow.date.month + "월 " + tomorrow.date.day + "일)은 " + E.label(tomorrow.focusElement) + " 기운이 필요해요. ";
-        text("cta-text", tomorrowLine + (isAndroid
-          ? "내일 이 페이지를 다시 열면 내일의 기운과 보완템을 바로 보여 드려요."
-          : "사주쇼핑 앱을 받으면 매일 저녁 알림과 홈 화면 위젯으로 바로 볼 수 있고, 가족·친구 사주도 저장해 선물을 고를 수 있어요."));
+        text("cta-text", tomorrowLine + "내일 이 페이지를 다시 열면 내일의 기운과 보완템을 바로 보여 드려요.");
 
         ["today-picks", "year-picks", "life-picks"].forEach(function (id) {
           $(id).innerHTML = '<li class="empty">불러오고 있어요…</li>';
@@ -1258,35 +1267,51 @@
         return p.dm === chart.dayMaster && p.lack === chart.analysis.primaryLacking && p.counts.join("") === chart.counts.join("");
       }
 
-      /** 결과 화면: 링크 속 사람마다 나와 비교하는 블록. 궁합 링크면 보낸 친구와 그 상대 둘 다. */
+      /**
+       * 결과 화면의 궁합: 링크를 보낸 사람 한 명과만 비교한다.
+       * 궁합 링크의 상대(with)와는 비교하지 않는다. 링크가 몇 번 건너가면 받은 사람이 모르는 사람일 수 있어서,
+       * 보낸 사람이 본 궁합은 그 아래 "보낸 사람이 본 궁합"으로 접어 둔다.
+       */
       function renderCompares(chart, myType, person) {
         var box = $("compares");
         box.textContent = "";
-        var people = (isPair ? [friend, partner] : comparable(friend) ? [friend] : []).filter(function (p) { return !isMe(p, chart); });
-        people.forEach(function (p) {
-          var block = $("compare-tpl").content.firstElementChild.cloneNode(true);
-          var q = function (k) { return block.querySelector('[data-k="' + k + '"]'); };
-          var mine = chart.counts, myLack = chart.analysis.primaryLacking;
-          var v = verdictOf(mine, myLack, p.counts, p.lack);
-          var t = myVerdictText(v, p.who, myLack, p.lack);
-          var combined = S.balanceOf(sumCounts(mine, p.counts));
-          q("title").textContent = "나와 " + p.who;
-          fillCompareTable(q("table"), [["나", myType.name, mine, myLack], [p.who, p.type ? p.type.name : "", p.counts, p.lack]]);
-          var insight = insightOf(v, { who: "나", lack: myLack }, p);
-          q("verdict").textContent = t[0];
-          q("insight").textContent = insight;
-          q("detail").textContent = t[1];
-          q("balance").textContent = "둘을 합치면 오행 균형 " + combined + "점 (나 혼자 " + chart.analysis.balanceScore + "점)";
-          if (window.SajuReading) {
-            renderReading(q("reading"), window.SajuReading.pair(v, { who: "나", lack: myLack, dm: chart.dayMaster },
-              { who: p.who, lack: p.lack, dm: p.dm }), "read-compare");
-          }
-          q("gift").href = giftHref(p);
-          q("gift").textContent = p.who + "에게 어울리는 " + E.korean(p.lack) + " 기운 선물 보기 →";
+        $("pair").hidden = true;
+        $("pair").open = false;
+        if (comparable(friend) && !isMe(friend, chart)) {
+          box.appendChild(compareBlock(chart, myType, person, friend));
+        } else if (friend.lack !== null && !comparable(friend)) {
+          box.appendChild(senderNote(friend));  // 오행 개수가 없는 예전 링크: 필요한 기운과 선물만
+        }
+        // 내가 그 궁합의 상대면 위의 "나와 보낸 사람"과 같은 내용이라 다시 보여 주지 않는다.
+        if (isPair && !isMe(partner, chart)) renderPair(friend, partner);
+      }
 
-          // 이 궁합을 단톡방에 보내면 받은 사람도 두 사람 궁합을 보고, 자기와도 맞춰 볼 수 있다.
-          var sentence = myVerdictSentence(v, p.who, t[0]);
-          var share = {
+      function compareBlock(chart, myType, person, p) {
+        var block = $("compare-tpl").content.firstElementChild.cloneNode(true);
+        var q = function (k) { return block.querySelector('[data-k="' + k + '"]'); };
+        var mine = chart.counts, myLack = chart.analysis.primaryLacking;
+        var v = verdictOf(mine, myLack, p.counts, p.lack);
+        var t = myVerdictText(v, p.who, myLack, p.lack);
+        var combined = S.balanceOf(sumCounts(mine, p.counts));
+        q("title").textContent = "나와 " + p.who;
+        fillCompareTable(q("table"), [["나", myType.name, mine, myLack], [p.who, p.type ? p.type.name : "", p.counts, p.lack]]);
+        var insight = insightOf(v, { who: "나", lack: myLack }, p);
+        q("verdict").textContent = t[0];
+        q("insight").textContent = insight;
+        q("detail").textContent = t[1];
+        q("balance").textContent = "둘을 합치면 오행 균형 " + combined + "점 (나 혼자 " + chart.analysis.balanceScore + "점)";
+        if (window.SajuReading) {
+          renderReading(q("reading"), window.SajuReading.pair(v, { who: "나", lack: myLack, dm: chart.dayMaster },
+            { who: p.who, lack: p.lack, dm: p.dm }), "read-compare");
+        }
+        q("gift").href = giftHref(p);
+        q("gift").textContent = p.who + "에게 어울리는 " + E.korean(p.lack) + " 기운 선물 보기 →";
+
+        // 이 궁합을 단톡방에 보내면 받은 사람은 자기 결과 → 나와의 궁합 → (접힌) 이 궁합 순서로 본다.
+        // 보낼 때 이름을 물어볼 수 있어서 주소는 누른 순간에 만든다.
+        var sentence = myVerdictSentence(v, p.who, t[0]);
+        function pairShare() {
+          return {
             url: pairURL(chart, myType, person, p),
             title: sentence,
             description: insight + " 너랑 나는 어떤 사이일까? 생년월일만 넣으면 바로 알려 줘요.",
@@ -1294,13 +1319,37 @@
             button: "나랑 맞춰 보기",
             imageKey: E.key(myLack)
           };
-          if (KAKAO_JS_KEY) q("kakao").hidden = false;
-          q("kakao").addEventListener("click", function () { stat("share-pair-kakao"); sendKakao(share, q("status"), "궁합 결과 보내기"); });
-          q("share").addEventListener("click", function () { stat("share-pair-link"); shareLink(share, q("status"), q("share")); });
-          box.appendChild(block);
+        }
+        if (KAKAO_JS_KEY) q("kakao").hidden = false;
+        q("kakao").addEventListener("click", function () {
+          withName(function () { stat("share-pair-kakao"); sendKakao(pairShare(), q("status"), "궁합 링크"); });
         });
-        // 안드로이드 앱은 아직 없어서 iOS·데스크톱에만 보인다.
-        $("nudge-save").hidden = !people.length || isAndroid;
+        q("share").addEventListener("click", function () {
+          withName(function () { stat("share-pair-link"); shareLink(pairShare(), q("status"), q("share")); });
+        });
+        return block;
+      }
+
+      /** 오행 개수가 없는 예전 링크로 왔을 때: 보낸 사람에게 필요한 기운과 선물 링크만. */
+      function senderNote(p) {
+        var block = document.createElement("div");
+        block.className = "block";
+        var head = document.createElement("div");
+        head.className = "block-head";
+        var h = document.createElement("h2");
+        h.textContent = "보낸 사람: " + p.who + (p.type ? " · " + p.type.name : "");
+        head.appendChild(h);
+        block.appendChild(head);
+        var line = document.createElement("p");
+        line.className = "insight";
+        line.textContent = josa(p.who, "은", "는") + " " + E.label(p.lack) + " 기운이 필요해요.";
+        block.appendChild(line);
+        var gift = document.createElement("a");
+        gift.className = "gift-link";
+        gift.href = giftHref(p);
+        gift.textContent = p.who + "에게 어울리는 선물 보기 →";
+        block.appendChild(gift);
+        return block;
       }
 
       /** 궁합 링크: 나(from)와 비교한 상대(with). 이름은 적었을 때만, 생일은 넣지 않는다. */
@@ -1334,6 +1383,41 @@
       function shareMessage() {
         return "나는 " + shareType.name + "! " + shareType.dayMasterName + " 일간에 " + E.label(shareLack) + " 기운이 부족한 사람이래. 너는 무슨 형이야?";
       }
+
+      // MARK: 보낼 때 이름 묻기 (이름이 비어 있을 때 한 번만)
+      // 받은 사람 화면에 "나와 친구" 대신 "나와 지수님"이 보이게 한다. 링크가 몇 번 건너가도 누구와의 궁합인지 알 수 있다.
+      // 공유 창·카카오톡은 사용자가 누른 순간에만 열려서, 묻는 창의 버튼을 누를 때 보낸다.
+      var nameAsked = false, pendingShare = null;
+      function withName(action) {
+        if ((current && current.name) || nameAsked) { action(); return; }
+        pendingShare = action;
+        $("name-ask").value = "";
+        $("name-modal").hidden = false;
+        $("name-ask").focus();
+      }
+      function finishName(name) {
+        nameAsked = true;
+        $("name-modal").hidden = true;
+        if (name && current) {
+          current.name = name;  // sharePerson과 같은 객체라 내 링크·궁합 링크 모두 이 이름을 쓴다
+          $("name").value = name;
+          var saved = load();
+          if (saved && saved.birth) { saved.name = name; save(saved); }
+        }
+        var action = pendingShare;
+        pendingShare = null;
+        if (action) action();
+      }
+      function cancelName() {
+        $("name-modal").hidden = true;
+        pendingShare = null;
+      }
+      $("name-ok").addEventListener("click", function () { finishName($("name-ask").value.trim().slice(0, 20)); });
+      $("name-skip").addEventListener("click", function () { finishName(""); });
+      $("name-ask").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") { e.preventDefault(); finishName($("name-ask").value.trim().slice(0, 20)); }
+      });
+      $("name-modal").addEventListener("click", function (e) { if (e.target === $("name-modal")) cancelName(); });
 
       /** 내 타입 공유 내용 (카카오 카드·공유 창 공통). */
       function myShare() {
@@ -1543,7 +1627,11 @@
       });
       $("story-close").addEventListener("click", function () { $("story-modal").hidden = true; $("story").focus(); });
       $("story-modal").addEventListener("click", function (e) { if (e.target === $("story-modal")) $("story-modal").hidden = true; });
-      document.addEventListener("keydown", function (e) { if (e.key === "Escape") $("story-modal").hidden = true; });
+      document.addEventListener("keydown", function (e) {
+        if (e.key !== "Escape") return;
+        $("story-modal").hidden = true;
+        if (!$("name-modal").hidden) cancelName();
+      });
 
       // 카카오톡 카드 공유 (앱과 같은 모양: 기운별 이미지 + "너는 뭐가 부족해?" 버튼, 주소는 보이지 않는다).
       // JavaScript 키는 카카오 개발자 콘솔 › 앱 키. 웹에 공개되는 키이고, 등록한 사이트 도메인에서만 쓸 수 있다.
@@ -1553,7 +1641,7 @@
       /** 카카오톡 카드 공유. share: { url, title, description, button, imageKey }, fallback: 대신 누를 버튼 이름 */
       function sendKakao(share, status, fallback) {
         var K = window.Kakao;
-        if (!K) { status.textContent = "카카오톡 공유를 불러오지 못했어요. 아래 \"" + fallback + "\"를 눌러 주세요."; return; }
+        if (!K) { status.textContent = "카카오톡 공유를 불러오지 못했어요. \"" + fallback + "\" 버튼을 눌러 주세요."; return; }
         try {
           if (!K.isInitialized()) K.init(KAKAO_JS_KEY);  // Kakao.Share는 init 뒤에 생긴다
           var link = { mobileWebUrl: share.url, webUrl: share.url };
@@ -1567,16 +1655,14 @@
               imageHeight: 400,
               link: link
             },
-            // 앱이 있으면 앱이 바로 열리고(카카오 실행 링크), 없으면 카카오에 등록한 App Store로 간다.
-            // 앱은 kakao{앱 키}://kakaolink?{같은 주소의 쿼리}로 받아 초대(친구와 비교)를 연다.
+            // 버튼은 하나만: 받은 사람은 웹에서 바로 입력 → 내 결과 → 궁합. (예전 "앱으로 보기" 버튼은 웹 우선으로 뺐다)
             buttons: [
-              { title: share.button, link: link },
-              { title: "앱으로 보기", link: { mobileWebUrl: share.url, webUrl: share.url, iosExecutionParams: new URL(share.url).search.slice(1) } }
+              { title: share.button, link: link }
             ]
           });
           status.textContent = "";
         } catch (e) {
-          status.textContent = "카카오톡 공유를 열지 못했어요. 아래 \"" + fallback + "\"를 눌러 주세요.";
+          status.textContent = "카카오톡 공유를 열지 못했어요. \"" + fallback + "\" 버튼을 눌러 주세요.";
         }
       }
 
@@ -1611,14 +1697,18 @@
 
       $("share-kakao").addEventListener("click", function () {
         if (shareLack === null) return;
-        stat("share-kakao");
-        sendKakao(myShare(), $("share-status"), "내 결과 링크 보내기");
+        withName(function () {
+          stat("share-kakao");
+          sendKakao(myShare(), $("share-status"), "링크 보내기");
+        });
       });
 
       $("share").addEventListener("click", function () {
         if (shareLack === null) return;
-        stat("share-link");
-        shareLink(myShare(), $("share-status"), $("share"));
+        withName(function () {
+          stat("share-link");
+          shareLink(myShare(), $("share-status"), $("share"));
+        });
       });
 
       /** 보이지 않는 입력 칸에 글을 넣고 선택해 복사한다. 성공하면 true. */

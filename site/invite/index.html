@@ -118,6 +118,23 @@
     .story-actions .btn { width: 100%; }
     .hero-result .seal { width: 76px; height: 76px; font-size: 44px; margin: 4px 0 0; }
     .birth-line { color: var(--ink-3); font-size: 14px; margin: 14px 0 0; }
+    /* 더 읽어 보기: 제목 + 첫 문장만 보이고, 누르면 펼쳐진다 */
+    .reading { margin-top: 16px; border-top: 1px solid var(--rule); }
+    .reading-label { font-size: 13px; font-weight: 700; color: var(--ink-2); margin: 14px 0 0; }
+    .reading details { border-bottom: 1px solid var(--rule); }
+    .reading summary { display: block; list-style: none; cursor: pointer; padding: 12px 30px 12px 0; position: relative; font-weight: 400; }
+    .reading summary::-webkit-details-marker { display: none; }
+    .reading summary::after { content: "+"; position: absolute; right: 4px; top: 14px; font-size: 22px; line-height: 1; font-weight: 300; color: var(--ink-2); }
+    .reading details[open] summary::after { content: "\2212"; }
+    .reading summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+    .reading .r-title { display: block; font-weight: 700; font-size: 16px; }
+    .reading .r-teaser { display: block; color: var(--ink-2); font-size: 14px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .reading details[open] .r-teaser { display: none; }
+    .reading .r-body { margin: 0; padding: 0 0 16px; font-size: 15px; line-height: 1.7; word-break: keep-all; }
+    .reading .tries { margin: 0 0 16px; padding: 12px 14px; background: var(--paper-raised); }
+    .reading .tries b { display: block; font-size: 13px; color: var(--seal, var(--ink)); margin-bottom: 4px; }
+    .reading .tries ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.7; word-break: keep-all; }
+    .pair-note .reading { margin-top: 12px; }
     .birth-line button {
       font: inherit; color: var(--ink-2); background: none; border: 0; padding: 0; margin-left: 8px;
       text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 3px; cursor: pointer;
@@ -225,6 +242,7 @@
         <p class="insight" id="p-insight"></p>
         <p class="muted small" id="p-detail" style="margin:0"></p>
         <p class="note-line" id="p-balance"></p>
+        <div class="reading" id="p-reading"></div>
       </div>
 
       <!-- 입력 -->
@@ -313,6 +331,10 @@
         </div>
         <p class="type-summary" id="r-type-summary"></p>
         <p class="birth-line"><span id="r-birth"></span><button type="button" id="edit">다시 입력</button></p>
+        <div class="reading" id="r-reading-box">
+          <p class="reading-label">더 읽어 보기</p>
+          <div id="r-reading"></div>
+        </div>
 
         <!-- 링크를 보낸 친구(와 궁합 링크라면 그 상대)와 나 비교. compare-tpl로 한 사람에 한 블록씩 만든다. -->
         <div id="compares"></div>
@@ -335,6 +357,7 @@
             <p class="insight" data-k="insight"></p>
             <p class="muted small" data-k="detail" style="margin:0"></p>
             <p class="note-line" data-k="balance"></p>
+            <div class="reading" data-k="reading"></div>
             <div class="share-row">
               <button class="btn btn-kakao" type="button" data-k="kakao" hidden>
                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 3C6.48 3 2 6.54 2 10.9c0 2.82 1.87 5.3 4.69 6.7-.15.53-.97 3.4-1 3.62 0 0-.02.17.09.24.11.06.24.01.24.01.32-.04 3.7-2.42 4.28-2.83.55.08 1.12.12 1.7.12 5.52 0 10-3.54 10-7.86S17.52 3 12 3z"/></svg>
@@ -475,6 +498,7 @@
           integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous" async></script>
   <script src="../assets/stats.js"></script>
   <script src="../assets/saju.js"></script>
+  <script src="../assets/reading.js"></script>
   <script>
     (function () {
       "use strict";
@@ -970,6 +994,9 @@
         $("r-seal").textContent = E.hanja(lack);
         $("r-seal").style.background = COLORS[lack];
         text("r-birth", birthSummary(person.birth));
+        if (window.SajuReading) {
+          renderReading($("r-reading"), window.SajuReading.personal({ dayMaster: chart.dayMaster, lack: lack, dominant: a.primaryDominant }), "read-me");
+        }
         document.title = type.name + " — 사주쇼핑";
         renderCompares(chart, type, person);
 
@@ -1052,6 +1079,49 @@
         text("share-status", "");
         $("form-view").hidden = true;
         $("result-view").hidden = false;
+      }
+
+      // MARK: 더 읽어 보기 (assets/reading.js). 처음 펼칠 때만 센다.
+      function renderReading(box, sections, statPrefix) {
+        box.textContent = "";
+        if (!window.SajuReading) return;
+        sections.forEach(function (sec) {
+          var d = document.createElement("details");
+          var sum = document.createElement("summary");
+          var title = document.createElement("span");
+          title.className = "r-title";
+          title.textContent = sec.title;
+          var teaser = document.createElement("span");
+          teaser.className = "r-teaser";
+          teaser.textContent = window.SajuReading.teaser(sec.body);
+          sum.appendChild(title);
+          sum.appendChild(teaser);
+          d.appendChild(sum);
+          var body = document.createElement("p");
+          body.className = "r-body";
+          body.textContent = sec.body;
+          d.appendChild(body);
+          if (sec.tries) {
+            var tries = document.createElement("div");
+            tries.className = "tries";
+            var label = document.createElement("b");
+            label.textContent = "오늘 해 볼 것";
+            tries.appendChild(label);
+            var ul = document.createElement("ul");
+            sec.tries.forEach(function (t) {
+              var li = document.createElement("li");
+              li.textContent = t;
+              ul.appendChild(li);
+            });
+            tries.appendChild(ul);
+            d.appendChild(tries);
+          }
+          var counted = false;
+          d.addEventListener("toggle", function () {
+            if (d.open && !counted) { counted = true; stat(statPrefix + "-" + sec.key); }
+          });
+          box.appendChild(d);
+        });
       }
 
       // MARK: 궁합 (두 사람의 오행 개수와 부족한 기운으로 판정)
@@ -1174,6 +1244,10 @@
         text("p-verdict", t[0]);
         text("p-insight", insightOf(verdictOf(a.counts, a.lack, b.counts, b.lack), a, b));
         text("p-detail", t[1]);
+        if (window.SajuReading) {
+          renderReading($("p-reading"), window.SajuReading.pair(verdictOf(a.counts, a.lack, b.counts, b.lack),
+            { who: a.who, lack: a.lack, dm: a.dm }, { who: b.who, lack: b.lack, dm: b.dm }), "read-pair");
+        }
         text("p-balance", "두 사람을 합치면 오행 균형 " + S.balanceOf(sumCounts(a.counts, b.counts)) + "점 (" +
           a.who + " " + S.balanceOf(a.counts) + "점 · " + b.who + " " + S.balanceOf(b.counts) + "점)");
         $("pair").hidden = false;
@@ -1203,6 +1277,10 @@
           q("insight").textContent = insight;
           q("detail").textContent = t[1];
           q("balance").textContent = "둘을 합치면 오행 균형 " + combined + "점 (나 혼자 " + chart.analysis.balanceScore + "점)";
+          if (window.SajuReading) {
+            renderReading(q("reading"), window.SajuReading.pair(v, { who: "나", lack: myLack, dm: chart.dayMaster },
+              { who: p.who, lack: p.lack, dm: p.dm }), "read-compare");
+          }
           q("gift").href = giftHref(p);
           q("gift").textContent = p.who + "에게 어울리는 " + E.korean(p.lack) + " 기운 선물 보기 →";
 
